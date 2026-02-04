@@ -94,7 +94,7 @@
     });
 
     // Load existing description
-    const existingDescription = `{{ material.description or '' }}`;
+    const existingDescription = `{{ material.description|safe if material.description else '' }}`;
     if (existingDescription) {
         editor.root.innerHTML = existingDescription;
     }
