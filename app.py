@@ -43,6 +43,36 @@ def allowed_file(filename):
     """Check if file extension is allowed."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def convert_youtube_url(url):
+    """Convert YouTube watch URL to embed URL format to bypass X-Frame-Options restrictions.
+    
+    Supports formats:
+    - https://www.youtube.com/watch?v=VIDEO_ID
+    - https://youtu.be/VIDEO_ID
+    - https://www.youtube.com/embed/VIDEO_ID (already correct)
+    """
+    if not url:
+        return url
+    
+    url = url.strip()
+    
+    # Already in embed format
+    if 'youtube.com/embed/' in url:
+        return url
+    
+    # Extract video ID from watch URL
+    if 'youtube.com/watch' in url:
+        video_id = url.split('v=')[-1].split('&')[0]
+        return f'https://www.youtube.com/embed/{video_id}'
+    
+    # Extract video ID from youtu.be short URL
+    if 'youtu.be/' in url:
+        video_id = url.split('youtu.be/')[-1].split('?')[0]
+        return f'https://www.youtube.com/embed/{video_id}'
+    
+    # Return original URL if not YouTube
+    return url
+
 def sanitize_rich_text(html):
     """Sanitize rich text HTML from editor input."""
     if not html:
@@ -703,6 +733,10 @@ def manage_materials(module_id):
         file_path = request.form.get('file_path')
         material_type = request.form.get('type', 'pdf')
         
+        # Convert YouTube URLs to embed format if video type
+        if material_type == 'video':
+            file_path = convert_youtube_url(file_path)
+        
         if not title:
             flash('Material title is required.', 'danger')
             return redirect(url_for('manage_materials', module_id=module_id))
@@ -741,6 +775,10 @@ def edit_material(material_id):
         description = sanitize_rich_text(request.form.get('description'))
         file_path = request.form.get('file_path')
         material_type = request.form.get('type', 'pdf')
+        
+        # Convert YouTube URLs to embed format if video type
+        if material_type == 'video':
+            file_path = convert_youtube_url(file_path)
         
         if not title:
             flash('Material title is required.', 'danger')
