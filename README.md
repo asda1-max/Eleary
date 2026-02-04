@@ -10,12 +10,32 @@ A comprehensive Flask-based e-learning platform for RST Slamet Riyadi Solo hospi
 - Access course materials organized by modules
 - Sidebar navigation for easy module access
 - Support for PDF, Video, and Assignment materials
+- Instructors (Pemateri) can create and manage courses after admin approval
 
 ### 📚 E-Library (Scribd-Like)
 - Browse approved library documents
 - Search functionality
 - User document uploads (pending admin approval)
+- Document preview functionality
 - Document management for admins
+
+### 🔐 Instructor Approval System
+- Users can request instructor (Pemateri) role during registration
+- Admin reviews and approves/rejects instructor requests
+- Approved instructors can create courses
+
+### 👥 Admin User Management
+- View all users with role badges
+- Promote users to admin role
+- Delete user accounts
+- Manage pending instructor requests
+- Full control over all content
+
+### 🎨 Dark Mode
+- Toggle dark mode with smooth transitions
+- Persistent preference via localStorage
+- Enhanced contrast and visibility
+- Glass-morphism effects
 
 ### 📋 Attendance Tracking
 - Daily course attendance marking
@@ -23,7 +43,8 @@ A comprehensive Flask-based e-learning platform for RST Slamet Riyadi Solo hospi
 - Course-specific attendance
 
 ### 👤 User Roles
-- **Admin**: Full system access, approve/reject documents, manage courses
+- **Admin**: Full system access, approve/reject instructors and documents, manage courses and users
+- **Pemateri**: Can create and manage courses (after approval)
 - **User**: Can enroll in courses, upload documents, mark attendance
 
 ## Project Structure
@@ -35,18 +56,20 @@ Eleary/
 ├── requirements.txt                 # Python dependencies
 ├── eleary.db                        # SQLite database (auto-generated)
 ├── templates/
-│   ├── base.html                   # Base template with navigation
+│   ├── base.html                   # Base template with navigation and dark mode
 │   ├── login.html                  # Login page
-│   ├── register.html               # Registration page
+│   ├── register.html               # Registration page (with Mahasiswa/Koas division)
 │   ├── dashboard.html              # User dashboard
 │   ├── courses.html                # Course catalog (Digitalent-style)
 │   ├── course_detail.html          # Course view with sidebar (Spada-style)
 │   ├── library.html                # E-Library view (Scribd-style)
+│   ├── preview.html                # Library document preview
 │   ├── admin_approvals.html        # Admin document approval
-│   ├── admin_courses.html          # Admin course management
+│   ├── admin_courses.html          # Admin course management with delete
 │   ├── admin_create_course.html    # Admin course creation
 │   ├── admin_manage_modules.html   # Admin module management
 │   ├── admin_manage_materials.html # Admin material management
+│   ├── admin_users.html            # Admin user & instructor approval management
 │   ├── 404.html                    # 404 error page
 │   └── 500.html                    # 500 error page
 ├── static/                         # Static files (CSS, JS, images)
@@ -60,8 +83,9 @@ Eleary/
 - `username` (Unique)
 - `email` (Unique)
 - `password_hash`
-- `role` ('admin' or 'user')
-- `division` (e.g., Medical, IT, Administration)
+- `role` ('admin', 'pemateri', or 'user')
+- `pending_role` (Pending role for approval workflow - nullable)
+- `division` (e.g., Medical, Nursing, Mahasiswa/Koas, Administration, IT, Other)
 - `created_at`
 
 ### Course
@@ -69,7 +93,7 @@ Eleary/
 - `title`
 - `description`
 - `thumbnail_url`
-- `instructor`
+- `instructor_id` (Foreign Key to User)
 - `category` ('medical', 'admin', 'it')
 - `created_at`
 
@@ -167,15 +191,19 @@ The app will run at `http://localhost:5000`
 - **Username**: `admin`
 - **Password**: `admin123`
 
-### Sample User
+### Sample Instructor (Pemateri)
 - **Username**: `dr_ahmad`
+- **Password**: `password123`
+
+### Sample User
+- **Username**: `siti_nurse`
 - **Password**: `password123`
 
 ## API Routes
 
 ### Authentication
 - `GET/POST /login` - User login
-- `GET/POST /register` - User registration
+- `GET/POST /register` - User registration (with Mahasiswa/Koas division option)
 - `GET /logout` - User logout
 
 ### Courses
@@ -183,26 +211,49 @@ The app will run at `http://localhost:5000`
 - `GET /course/<id>` - View course with Spada-like layout
 - `POST /course/<id>/enroll` - Enroll in course
 - `POST /course/<id>/attendance` - Mark attendance
+- `POST /course/<id>/delete` - Delete course (admin or creator only)
 
 ### Library
 - `GET /library` - Browse approved documents
 - `POST /library/upload` - Upload document (pending approval)
+- `GET /library/<id>/preview` - Preview document
+- `GET /library/<id>/download` - Download document
+- `DELETE /library/<id>/delete` - Delete document (admin only)
 
-### Admin
+### Admin - Documents
 - `GET /admin/approvals` - View pending documents
 - `POST /admin/approvals/<id>/approve` - Approve document
 - `POST /admin/approvals/<id>/reject` - Reject document
+
+### Admin - Courses
 - `GET /admin/courses` - Manage courses
 - `GET/POST /admin/courses/create` - Create course
+- `POST /admin/courses/<id>/delete` - Delete course
 - `GET/POST /admin/courses/<id>/modules` - Manage modules
 - `GET/POST /admin/modules/<id>/materials` - Manage materials
+
+### Admin - Users
+- `GET /admin/users` - View all users and pending instructor requests
+- `POST /admin/users/<id>/approve_pemateri` - Approve instructor request
+- `POST /admin/users/<id>/reject_pemateri` - Reject instructor request
+- `POST /admin/users/<id>/make_admin` - Promote user to admin
+- `POST /admin/users/<id>/delete` - Delete user account
 
 ## Design Features
 
 ### Color Palette (Medical/Hospital)
 - **Primary**: Teal-600 (#0d9488)
-- **Secondary**: Slate-100 to Slate-900
+- **Light mode Secondary**: Slate-100 to Slate-900
+- **Dark mode Background**: Slate-800/900 with opacity
+- **Dark mode Text**: Slate-200/400
 - **Accent**: White (#ffffff)
+
+### Dark Mode
+- Toggle button in navigation bar
+- Persistent preference stored in localStorage
+- Glass-morphism effects for depth and contrast
+- Smooth transitions between light and dark mode
+- Enhanced readability in both modes
 
 ### Responsive Design
 - Mobile-first approach
@@ -216,6 +267,7 @@ The app will run at `http://localhost:5000`
 - Flash messages for user feedback
 - Loading states and transitions
 - Professional gradients and shadows
+- Glass-morphism cards and effects
 
 ## Usage Guide
 
@@ -257,10 +309,21 @@ The app will run at `http://localhost:5000`
    - Review pending uploads
    - Approve or reject with feedback
 
-4. **Manage Modules & Materials**
+4. **Manage Users & Instructors**
+   - Go to "Users" in admin section
+   - Review pending instructor requests
+   - Approve or reject instructor applications
+   - Promote users to admin role
+   - Delete user accounts
+
+5. **Manage Modules & Materials**
    - Access course modules
    - Add/edit modules
    - Add learning materials (PDF, video, assignment)
+
+6. **Delete Content**
+   - Delete any course or library document
+   - Confirmation dialog prevents accidental deletion
 
 ## Configuration
 
@@ -281,6 +344,9 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
 - Add rate limiting for file uploads
 - Validate all user inputs
 - Use environment variables for sensitive data
+- Admin accounts cannot be deleted by themselves (self-protection)
+- Pending instructor requests require admin approval before access
+- All file uploads require content-type validation
 
 ## File Upload
 
@@ -309,24 +375,33 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
    - Real-time notifications
    - Thread moderation
 
-3. **Certificates**
+3. **Instructor Approval Notifications**
+   - Email notifications for instructor requests
+   - Admin notification dashboard
+   - Request status updates
+
+4. **Certificates**
    - Generate certificates upon completion
    - PDF export functionality
 
-4. **Analytics**
+5. **Analytics**
    - Student progress tracking
    - Course completion rates
    - Admin dashboard with statistics
 
-5. **Live Sessions**
+6. **Live Sessions**
    - Video conferencing integration
    - Recorded sessions
    - Session scheduling
 
-6. **Mobile App**
+7. **Mobile App**
    - React Native/Flutter app
    - Offline learning support
    - Push notifications
+
+8. **Two-Factor Authentication**
+   - Optional 2FA for security
+   - SMS or email verification
 
 ## Troubleshooting
 

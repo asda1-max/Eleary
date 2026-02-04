@@ -111,17 +111,18 @@ def register():
             flash('Email already exists.', 'danger')
             return redirect(url_for('register'))
         
-        # Create new user with pemateri role if requested
-        role = 'pemateri' if request_pemateri else 'user'
-        user = User(username=username, email=email, division=division, role=role)
+        # Create new user - pemateri requests are pending admin approval
+        if request_pemateri:
+            user = User(username=username, email=email, division=division, role='user', pending_role='pemateri')
+            flash('Registration successful! Your instructor role request is pending admin approval. Please log in.', 'info')
+        else:
+            user = User(username=username, email=email, division=division, role='user')
+            flash('Registration successful! Please log in.', 'success')
+        
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
         
-        if request_pemateri:
-            flash('Registration successful! You are registered as an Instructor. Please log in.', 'success')
-        else:
-            flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('login'))
     
     return render_template('register.html')
@@ -437,6 +438,68 @@ def reject_book(book_id):
     flash('Document rejected and deleted.', 'success')
     return redirect(url_for('admin_approvals'))
 
+@app.route('/admin/users')
+@login_required
+@admin_required
+def admin_users():
+    """Admin page to manage users, approve pemateri requests, and create admins."""
+    pending_pemateri = User.query.filter_by(pending_role='pemateri').all()
+    all_users = User.query.order_by(User.created_at.desc()).all()
+    return render_template('admin_users.html', pending_pemateri=pending_pemateri, all_users=all_users)
+
+@app.route('/admin/users/<int:user_id>/approve_pemateri', methods=['POST'])
+@login_required
+@admin_required
+def approve_pemateri(user_id):
+    """Approve pemateri role request."""
+    user = User.query.get_or_404(user_id)
+    user.role = 'pemateri'
+    user.pending_role = None
+    db.session.commit()
+    flash(f'{user.username} is now an Instructor.', 'success')
+    return redirect(url_for('admin_users'))
+
+@app.route('/admin/users/<int:user_id>/reject_pemateri', methods=['POST'])
+@login_required
+@admin_required
+def reject_pemateri(user_id):
+    """Reject pemateri role request."""
+    user = User.query.get_or_404(user_id)
+    user.pending_role = None
+    db.session.commit()
+    flash(f'Instructor request for {user.username} rejected.', 'info')
+    return redirect(url_for('admin_users'))
+
+@app.route('/admin/users/<int:user_id>/make_admin', methods=['POST'])
+@login_required
+@admin_required
+def make_admin(user_id):
+    """Promote user to admin."""
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash('You are already an admin.', 'info')
+    else:
+        user.role = 'admin'
+        user.pending_role = None
+        db.session.commit()
+        flash(f'{user.username} is now an Admin.', 'success')
+    return redirect(url_for('admin_users'))
+
+@app.route('/admin/users/<int:user_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    """Delete a user account."""
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash('You cannot delete your own account.', 'danger')
+    else:
+        username = user.username
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'User {username} deleted.', 'success')
+    return redirect(url_for('admin_users'))
+
 @app.route('/admin/courses')
 @login_required
 @pemateri_required
@@ -480,6 +543,24 @@ def create_course():
         return redirect(url_for('admin_courses'))
     
     return render_template('admin_create_course.html')
+
+@app.route('/admin/courses/<int:course_id>/delete', methods=['POST'])
+@login_required
+@pemateri_required
+def delete_course(course_id):
+    """Delete a course - admin can delete any, pemateri can delete only their own."""
+    course = Course.query.get_or_404(course_id)
+    
+    # Check permission
+    if not current_user.is_admin() and course.instructor_id != current_user.id:
+        flash('You do not have permission to delete this course.', 'danger')
+        return redirect(url_for('admin_courses'))
+    
+    title = course.title
+    db.session.delete(course)
+    db.session.commit()
+    flash(f'Course "{title}" deleted successfully.', 'success')
+    return redirect(url_for('admin_courses'))
 
 @app.route('/admin/courses/<int:course_id>/modules', methods=['GET', 'POST'])
 @login_required

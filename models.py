@@ -15,7 +15,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), default='user', nullable=False)  # 'admin', 'pemateri', or 'user'
-    division = db.Column(db.String(100), nullable=True)  # e.g., Medical, IT, Admin
+    pending_role = db.Column(db.String(20), nullable=True)  # Requested role pending admin approval
+    division = db.Column(db.String(100), nullable=True)  # e.g., Medical, IT, Admin, Mahasiswa/Koas
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships

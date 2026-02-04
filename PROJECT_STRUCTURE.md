@@ -12,18 +12,20 @@ Eleary/
 ├── eleary.db                           # SQLite database (auto-created)
 │
 ├── templates/                          # HTML templates
-│   ├── base.html                       # Base template with navigation & footer
+│   ├── base.html                       # Base template with navigation & footer (dark mode)
 │   ├── login.html                      # Authentication - Login page
-│   ├── register.html                   # Authentication - Registration page
+│   ├── register.html                   # Authentication - Registration page (with Mahasiswa/Koas division)
 │   ├── dashboard.html                  # User dashboard home page
 │   ├── courses.html                    # Course catalog (Kominfo Digitalent style)
 │   ├── course_detail.html              # Course detail (Spada-like with sidebar)
 │   ├── library.html                    # E-Library view (Scribd-like)
+│   ├── preview.html                    # Library document preview page
 │   ├── admin_approvals.html            # Admin - Document approval panel
-│   ├── admin_courses.html              # Admin - Course management
+│   ├── admin_courses.html              # Admin - Course management with delete button
 │   ├── admin_create_course.html        # Admin - Create new course
 │   ├── admin_manage_modules.html       # Admin - Manage course modules
 │   ├── admin_manage_materials.html     # Admin - Manage course materials
+│   ├── admin_users.html                # Admin - User management & instructor approval
 │   ├── 404.html                        # Error page - Not found
 │   └── 500.html                        # Error page - Server error
 │
@@ -41,19 +43,20 @@ Eleary/
 
 ### Core Application Files
 
-**app.py** (870 lines)
+**app.py** (~1100 lines)
 - Flask application initialization
 - Database configuration
 - Authentication routes (login, register, logout)
-- Course management routes
-- Library management routes
-- Admin routes
+- Course management routes (with delete functionality)
+- Library management routes (with preview and delete)
+- Admin routes (user management, instructor approval, admin creation)
+- User management routes (approve/reject instructors, make admin, delete users)
 - Error handlers
 - Database initialization with sample data
 
-**models.py** (200 lines)
-- `User` - User authentication and role management
-- `Course` - Course information and metadata
+**models.py** (~250 lines)
+- `User` - User authentication, role management, and instructor approval workflow (pending_role field)
+- `Course` - Course information, metadata, and instructor relationship (instructor_id FK)
 - `CourseModule` - Course sections/modules (Spada structure)
 - `CourseMaterial` - Learning materials within modules
 - `LibraryBook` - Library document management with approval workflow
@@ -114,8 +117,9 @@ Users
 ├── username (Unique)
 ├── email (Unique)
 ├── password_hash
-├── role ('admin' | 'user')
-├── division
+├── role ('admin' | 'pemateri' | 'user')
+├── pending_role (approval workflow field - nullable)
+├── division ('Medical' | 'Nursing' | 'Mahasiswa/Koas' | 'Administration' | 'IT' | 'Other')
 └── created_at
 
 Courses
@@ -123,7 +127,7 @@ Courses
 ├── title
 ├── description
 ├── thumbnail_url
-├── instructor
+├── instructor_id (FK → Users, nullable)
 ├── category ('medical' | 'admin' | 'it')
 └── created_at
 
@@ -192,13 +196,19 @@ POST      /library/upload     → upload_document()
 
 ### Admin Routes
 ```
-GET       /admin/approvals           → admin_approvals()
-POST      /admin/approvals/<id>/approve → approve_book()
-POST      /admin/approvals/<id>/reject  → reject_book()
-GET       /admin/courses             → admin_courses()
-GET/POST  /admin/courses/create      → create_course()
-GET/POST  /admin/courses/<id>/modules     → manage_modules()
-GET/POST  /admin/modules/<id>/materials   → manage_materials()
+GET       /admin/approvals               → admin_approvals()
+POST      /admin/approvals/<id>/approve  → approve_book()
+POST      /admin/approvals/<id>/reject   → reject_book()
+GET       /admin/courses                 → admin_courses() [with delete buttons]
+GET/POST  /admin/courses/create          → create_course()
+POST      /admin/courses/<id>/delete     → delete_course()
+GET/POST  /admin/courses/<id>/modules    → manage_modules()
+GET/POST  /admin/modules/<id>/materials  → manage_materials()
+GET       /admin/users                   → admin_users() [pending requests & all users]
+POST      /admin/users/<id>/approve_pemateri  → approve_pemateri()
+POST      /admin/users/<id>/reject_pemateri   → reject_pemateri()
+POST      /admin/users/<id>/make_admin        → make_admin()
+POST      /admin/users/<id>/delete            → delete_user()
 ```
 
 ## Key Features Implementation
@@ -224,28 +234,77 @@ GET/POST  /admin/modules/<id>/materials   → manage_materials()
   - Upload modal (users can submit documents)
   - Admin approval workflow
   - Document type badges
-  - Download functionality
+  - Download and preview functionality
 
-### 4. Role-Based Access
-- **Admin**: Full access to all admin routes and approvals
-- **User**: Can only enroll, view approved courses, upload documents
+### 4. Instructor Approval Workflow
+- **File**: `register.html`, `admin_users.html`, `models.py`, `app.py`
+- **Process**: 
+  - Users select "Pemateri" role during registration
+  - Request stored with `pending_role='pemateri'`
+  - Admin reviews pending requests in `/admin/users`
+  - Admin can approve (set role='pemateri') or reject
+  - Pemateri can create and manage courses
+- **Features**: Card-based UI showing pending instructor requests with approve/reject buttons
 
-### 5. Attendance System
+### 5. Admin User Management
+- **File**: `admin_users.html`, `app.py`
+- **Features**:
+  - View all users with role badges
+  - Promote any user to admin (make_admin)
+  - Delete user accounts (with self-protection)
+  - View pending instructor requests separately
+  - Dark mode styled interface
+
+### 6. Full Admin Content Control
+- **Features**:
+  - Admin can delete any course (regardless of creator)
+  - Admin can delete any user-uploaded library content
+  - Delete buttons appear in course and library management pages
+  - Confirmation dialogs before deletion
+
+### 7. Role-Based Access
+- **Admin**: Full access to all admin routes, user management, course deletion
+- **Pemateri**: Can create and manage own courses (after approval)
+- **User**: Can enroll, view approved courses, upload documents, mark attendance
+
+### 8. Attendance System
 - **Course-specific**: Mark attendance per course per day
 - **Display**: Shows present/not present status on course page
 - **Storage**: Logged with timestamp
+
+### 9. Dark Mode UI
+- **File**: `base.html` (with dark mode classes throughout)
+- **Features**:
+  - Toggle dark mode with smooth transitions
+  - Persistent dark mode preference via localStorage
+  - Enhanced contrast and visibility in dark mode
+  - Glass-morphism effects with improved opacity
+  - Dark mode classes on all components (navigation, footer, cards, modals)
+  - Better scrollbar styling in dark mode
+  - Gradient text enhancements for dark mode
 
 ## Styling
 
 ### Tailwind CSS
 - All templates use Tailwind CSS via CDN
 - Responsive design with mobile-first approach
+- Dark mode enabled with `darkMode: 'class'` configuration
 - Color scheme:
-  - Primary: Teal (teal-600, teal-700)
-  - Secondary: Slate (slate-50 to slate-900)
+  - Light mode Primary: Teal (teal-600, teal-700)
+  - Light mode Secondary: Slate (slate-50 to slate-900)
+  - Dark mode Background: Slate-800/900 with opacity
+  - Dark mode Text: Slate-200/400
   - Accents: Blue, Green, Red, Purple
-  - Background: Slate-50
-  - Cards: White with shadows
+  - Cards: White (light) / Slate-800 (dark) with shadows
+
+### Dark Mode Features
+- Toggle button in navigation bar
+- Persistent preference stored in localStorage
+- Glass-morphism effects with `dark:bg-slate-800/80`
+- Enhanced scrollbar styling in dark mode
+- Gradient text improvements for readability
+- All navigation and footer links have dark mode colors
+- Smooth transitions with `transition-all 0.3s ease`
 
 ### Layout Classes
 - `max-w-7xl` - Main content container
@@ -253,18 +312,21 @@ GET/POST  /admin/modules/<id>/materials   → manage_materials()
 - `flex flex-col gap-4` - Vertical stacking
 - `sticky top-20` - Sticky sidebar positioning
 - `line-clamp-2` - Text truncation
+- `glass` / `glass-dark` - Glass-morphism effect classes
 
 ## Database Initialization
 
 The `init_db()` function in `app.py` automatically:
-1. Creates all tables
+1. Creates all tables with new schema (pending_role field, instructor_id FK, Mahasiswa/Koas division)
 2. Creates sample data:
    - 1 admin user (admin/admin123)
-   - 2 sample users (dr_ahmad, siti_nurse)
-   - 3 sample courses (Medical, IT, Admin categories)
+   - 1 pemateri user (dr_ahmad/password123, approved instructor)
+   - 1 regular user (siti_nurse/password123)
+   - 3 sample courses created by different instructors (Medical, IT, Admin categories)
    - 3 modules for first course
    - 3 materials across modules
    - 2 approved library books
+3. Note: Old database must be deleted if schema has changed (`rm instance/eleary.db`)
 
 ## Security Features
 
