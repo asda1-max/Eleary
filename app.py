@@ -2,7 +2,6 @@ import os
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file
-import markdown
 import bleach
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
@@ -44,19 +43,25 @@ def allowed_file(filename):
     """Check if file extension is allowed."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def render_markdown(text):
-    """Render markdown to safe HTML."""
-    if not text:
+def sanitize_rich_text(html):
+    """Sanitize rich text HTML from editor input."""
+    if not html:
         return ''
 
-    html = markdown.markdown(text, extensions=['extra', 'sane_lists', 'nl2br'])
     allowed_tags = [
-        'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img',
-        'h1', 'h2', 'h3', 'h4', 'blockquote', 'code', 'pre', 'hr'
+        'p', 'br', 'strong', 'em', 'u', 's', 'ul', 'ol', 'li', 'a', 'img',
+        'h1', 'h2', 'h3', 'h4', 'blockquote', 'code', 'pre', 'hr', 'span', 'div'
     ]
     allowed_attrs = {
         'a': ['href', 'title', 'target', 'rel'],
-        'img': ['src', 'alt', 'title']
+        'img': ['src', 'alt', 'title'],
+        'p': ['class'],
+        'h1': ['class'],
+        'h2': ['class'],
+        'h3': ['class'],
+        'h4': ['class'],
+        'span': ['class'],
+        'div': ['class']
     }
     cleaned = bleach.clean(
         html,
@@ -227,8 +232,9 @@ def course_detail(course_id):
     # Check attendance for today
     attendance_today = get_course_attendance_today(current_user.id, course_id)
     
-    course_description_html = render_markdown(course.description)
-    selected_module_description_html = render_markdown(selected_module.description) if selected_module else ''
+    # Note: descriptions are already sanitized when stored in DB, no need to re-sanitize
+    course_description_html = course.description or ''
+    selected_module_description_html = selected_module.description or '' if selected_module else ''
 
     return render_template('course_detail.html',
                          course=course,
@@ -549,7 +555,7 @@ def create_course():
     """Create a new course."""
     if request.method == 'POST':
         title = request.form.get('title')
-        description = request.form.get('description')
+        description = sanitize_rich_text(request.form.get('description'))
         category = request.form.get('category', 'medical')
         thumbnail_url = request.form.get('thumbnail_url')
         
@@ -605,7 +611,7 @@ def manage_modules(course_id):
     
     if request.method == 'POST':
         title = request.form.get('title')
-        description = request.form.get('description')
+        description = sanitize_rich_text(request.form.get('description'))
         order_index = request.form.get('order_index', 0, type=int)
         
         if not title:
@@ -626,10 +632,11 @@ def manage_modules(course_id):
     modules = CourseModule.query.filter_by(course_id=course_id).order_by(CourseModule.order_index).all()
     return render_template('admin_manage_modules.html', course=course, modules=modules)
 
-@app.route('/admin/modules/<int:module_id>/materials', methods=['GET', 'POST'])
+@app.route('/admin/modules/<int:module_id>/edit', methods=['GET', 'POST'])
 @login_required
 @pemateri_required
-def manage_materials(module_id):
+def edit_module(module_id):
+    """Edit a module."""
     module = CourseModule.query.get_or_404(module_id)
     course = module.course
     
@@ -640,7 +647,59 @@ def manage_materials(module_id):
     
     if request.method == 'POST':
         title = request.form.get('title')
-        description = request.form.get('description')
+        description = sanitize_rich_text(request.form.get('description'))
+        order_index = request.form.get('order_index', 0, type=int)
+        
+        if not title:
+            flash('Module title is required.', 'danger')
+            return redirect(url_for('edit_module', module_id=module_id))
+        
+        module.title = title
+        module.description = description
+        module.order_index = order_index
+        db.session.commit()
+        
+        flash(f'Module "{title}" updated successfully!', 'success')
+        return redirect(url_for('manage_modules', course_id=course.id))
+    
+    return render_template('admin_edit_module.html', module=module, course=course)
+
+@app.route('/admin/modules/<int:module_id>/delete', methods=['POST'])
+@login_required
+@pemateri_required
+def delete_module(module_id):
+    """Delete a module."""
+    module = CourseModule.query.get_or_404(module_id)
+    course = module.course
+    
+    # Check permission: only course creator or admin can manage
+    if not current_user.is_admin() and course.instructor_id != current_user.id:
+        flash('You do not have permission to manage this course.', 'danger')
+        return redirect(url_for('admin_courses'))
+    
+    title = module.title
+    db.session.delete(module)
+    db.session.commit()
+    
+    flash(f'Module "{title}" deleted successfully.', 'success')
+    return redirect(url_for('manage_modules', course_id=course.id))
+
+@app.route('/admin/modules/<int:module_id>/materials', methods=['GET', 'POST'])
+@login_required
+@pemateri_required
+def manage_materials(module_id):
+    """Manage materials for a module."""
+    module = CourseModule.query.get_or_404(module_id)
+    course = module.course
+    
+    # Check permission: only course creator or admin can manage
+    if not current_user.is_admin() and course.instructor_id != current_user.id:
+        flash('You do not have permission to manage this course.', 'danger')
+        return redirect(url_for('admin_courses'))
+    
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = sanitize_rich_text(request.form.get('description'))
         file_path = request.form.get('file_path')
         material_type = request.form.get('type', 'pdf')
         
@@ -663,9 +722,61 @@ def manage_materials(module_id):
     materials = CourseMaterial.query.filter_by(module_id=module_id).all()
     return render_template('admin_manage_materials.html', module=module, materials=materials)
 
-# ============================================================================
-# Error Handlers
-# ============================================================================
+@app.route('/admin/materials/<int:material_id>/edit', methods=['GET', 'POST'])
+@login_required
+@pemateri_required
+def edit_material(material_id):
+    """Edit a course material."""
+    material = CourseMaterial.query.get_or_404(material_id)
+    module = material.module
+    course = module.course
+    
+    # Check permission: only course creator or admin can manage
+    if not current_user.is_admin() and course.instructor_id != current_user.id:
+        flash('You do not have permission to manage this course.', 'danger')
+        return redirect(url_for('admin_courses'))
+    
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = sanitize_rich_text(request.form.get('description'))
+        file_path = request.form.get('file_path')
+        material_type = request.form.get('type', 'pdf')
+        
+        if not title:
+            flash('Material title is required.', 'danger')
+            return redirect(url_for('edit_material', material_id=material_id))
+        
+        material.title = title
+        material.description = description
+        material.file_path = file_path
+        material.type = material_type
+        db.session.commit()
+        
+        flash(f'Material "{title}" updated successfully!', 'success')
+        return redirect(url_for('manage_materials', module_id=module.id))
+    
+    return render_template('admin_edit_material.html', material=material, module=module, course=course)
+
+@app.route('/admin/materials/<int:material_id>/delete', methods=['POST'])
+@login_required
+@pemateri_required
+def delete_material(material_id):
+    """Delete a course material."""
+    material = CourseMaterial.query.get_or_404(material_id)
+    module = material.module
+    course = module.course
+    
+    # Check permission: only course creator or admin can manage
+    if not current_user.is_admin() and course.instructor_id != current_user.id:
+        flash('You do not have permission to manage this course.', 'danger')
+        return redirect(url_for('admin_courses'))
+    
+    title = material.title
+    db.session.delete(material)
+    db.session.commit()
+    
+    flash(f'Material "{title}" deleted successfully.', 'success')
+    return redirect(url_for('manage_materials', module_id=module.id))
 @app.errorhandler(404)
 def not_found(error):
     """Handle 404 errors."""
