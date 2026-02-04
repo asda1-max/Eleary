@@ -33,8 +33,8 @@
                             {{ modules|length }} Modules
                         </span>
                     </div>
-                    {% if course.description %}
-                        <p class="text-slate-400 mt-3 max-w-2xl">{{ course.description }}</p>
+                    {% if course_description_html %}
+                        <div class="markdown-content text-slate-400 mt-3 max-w-2xl">{{ course_description_html|safe }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -135,6 +135,9 @@
                                     <p class="text-slate-600">{{ materials|length }} material{{ 's' if materials|length != 1 else '' }} in this module</p>
                                 </div>
                             </div>
+                            {% if selected_module_description_html %}
+                                <div class="markdown-content text-slate-600 mt-4">{{ selected_module_description_html|safe }}</div>
+                            {% endif %}
                         </div>
 
                         <!-- Materials List -->

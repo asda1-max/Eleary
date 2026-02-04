@@ -2,6 +2,8 @@ import os
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file
+import markdown
+import bleach
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from models import db, User, Course, CourseModule, CourseMaterial, LibraryBook, AttendanceLog, CourseEnrollment
@@ -41,6 +43,28 @@ def load_user(user_id):
 def allowed_file(filename):
     """Check if file extension is allowed."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def render_markdown(text):
+    """Render markdown to safe HTML."""
+    if not text:
+        return ''
+
+    html = markdown.markdown(text, extensions=['extra', 'sane_lists', 'nl2br'])
+    allowed_tags = [
+        'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img',
+        'h1', 'h2', 'h3', 'h4', 'blockquote', 'code', 'pre', 'hr'
+    ]
+    allowed_attrs = {
+        'a': ['href', 'title', 'target', 'rel'],
+        'img': ['src', 'alt', 'title']
+    }
+    cleaned = bleach.clean(
+        html,
+        tags=allowed_tags,
+        attributes=allowed_attrs,
+        protocols=['http', 'https', 'mailto']
+    )
+    return cleaned
 
 def admin_required(f):
     """Decorator to require admin role."""
@@ -203,12 +227,17 @@ def course_detail(course_id):
     # Check attendance for today
     attendance_today = get_course_attendance_today(current_user.id, course_id)
     
+    course_description_html = render_markdown(course.description)
+    selected_module_description_html = render_markdown(selected_module.description) if selected_module else ''
+
     return render_template('course_detail.html',
                          course=course,
                          modules=modules,
                          selected_module=selected_module,
                          materials=materials,
-                         attendance_today=attendance_today)
+                         attendance_today=attendance_today,
+                         course_description_html=course_description_html,
+                         selected_module_description_html=selected_module_description_html)
 
 @app.route('/course/<int:course_id>/enroll', methods=['POST'])
 @login_required
@@ -576,6 +605,7 @@ def manage_modules(course_id):
     
     if request.method == 'POST':
         title = request.form.get('title')
+        description = request.form.get('description')
         order_index = request.form.get('order_index', 0, type=int)
         
         if not title:
@@ -585,6 +615,7 @@ def manage_modules(course_id):
         module = CourseModule(
             course_id=course_id,
             title=title,
+            description=description,
             order_index=order_index
         )
         db.session.add(module)
