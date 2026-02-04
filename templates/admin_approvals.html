@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Approve Documents - E-Leary Admin{% endblock %}
+
+{% block content %}
+<div class="min-h-screen">
+    <!-- Header -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.03\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+        <div class="relative max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-white">Document Approvals</h1>
+                    <p class="text-slate-400">Review and approve pending library documents</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 -mt-6 relative z-10">
+        {% if books %}
+            <div class="space-y-4">
+                {% for book in books %}
+                    <div class="glass rounded-2xl shadow-xl p-6 border border-white/50 hover:shadow-2xl transition-all duration-300 animate-slide-up" style="animation-delay: {{ '%.2f' % (loop.index * 0.05) }}s">
+                        <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                            <!-- Document Info -->
+                            <div class="flex-1">
+                                <!-- Title with icon -->
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-slate-900">{{ book.title }}</h3>
+                                </div>
+
+                                <!-- Description -->
+                                {% if book.description %}
+                                    <p class="text-slate-600 mb-4 pl-13">{{ book.description }}</p>
+                                {% endif %}
+
+                                <!-- Meta Info -->
+                                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4 text-sm">
+                                    <div class="glass px-4 py-2.5 rounded-xl border border-white/30">
+                                        <p class="text-xs text-slate-500 mb-0.5">Uploaded by</p>
+                                        <p class="font-semibold text-slate-800">{{ book.uploader.username }}</p>
+                                    </div>
+                                    <div class="glass px-4 py-2.5 rounded-xl border border-white/30">
+                                        <p class="text-xs text-slate-500 mb-0.5">Email</p>
+                                        <p class="font-semibold text-slate-800 truncate">{{ book.uploader.email }}</p>
+                                    </div>
+                                    <div class="glass px-4 py-2.5 rounded-xl border border-white/30">
+                                        <p class="text-xs text-slate-500 mb-0.5">Date</p>
+                                        <p class="font-semibold text-slate-800">{{ book.created_at.strftime('%d %b %Y') }}</p>
+                                    </div>
+                                    <div class="glass px-4 py-2.5 rounded-xl border border-white/30">
+                                        <p class="text-xs text-slate-500 mb-0.5">Division</p>
+                                        <p class="font-semibold text-slate-800">{{ book.uploader.division }}</p>
+                                    </div>
+                                    <div class="glass px-4 py-2.5 rounded-xl border border-white/30">
+                                        <p class="text-xs text-slate-500 mb-0.5">File</p>
+                                        <p class="font-semibold text-slate-800 truncate">{{ book.file_path.split('/')[-1] }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex flex-wrap lg:flex-col gap-3 flex-shrink-0">
+                                <!-- Approve Button -->
+                                <form method="POST" action="{{ url_for('approve_book', book_id=book.id) }}" class="inline">
+                                    <button type="submit" class="btn-glow bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap shadow-lg shadow-emerald-500/30">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        Approve
+                                    </button>
+                                </form>
+
+                                <!-- Reject Button -->
+                                <form method="POST" action="{{ url_for('reject_book', book_id=book.id) }}" class="inline">
+                                    <button type="submit" class="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap shadow-lg shadow-red-500/30" onclick="return confirm('Are you sure you want to reject this document?');">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                        Reject
+                                    </button>
+                                </form>
+
+                                <!-- View/Download Button -->
+                                <a href="{{ url_for('preview_document', book_id=book.id) }}" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap shadow-lg shadow-purple-500/30">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% set total_pages = ((total - 1) // 10) + 1 %}
+            {% if total_pages > 1 %}
+            <div class="mt-12 flex justify-center items-center gap-2">
+                {% if page > 1 %}
+                    <a href="{{ url_for('admin_approvals', page=page-1) }}" 
+                       class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 font-semibold text-slate-700 shadow-sm transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        Previous
+                    </a>
+                {% endif %}
+
+                <span class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl shadow-lg">Page {{ page }} of {{ total_pages }}</span>
+
+                {% if page < total_pages %}
+                    <a href="{{ url_for('admin_approvals', page=page+1) }}" 
+                       class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 font-semibold text-slate-700 shadow-sm transition-all flex items-center gap-2">
+                        Next
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-20 glass rounded-2xl border border-white/50">
+                <div class="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-2">No pending documents</h3>
+                <p class="text-slate-600">All documents have been reviewed. Great work!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
