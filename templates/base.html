@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
+        // Dark mode initialization - runs before page load to prevent flash
+        (function() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+        
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -136,15 +145,29 @@
             background: linear-gradient(135deg, #f0fdfa 0%, #f0f9ff 50%, #faf5ff 100%);
         }
         
+        /* Dark mode styles */
+        .dark .bg-gradient-mesh {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        
+        .dark .glass {
+            background: rgba(30, 41, 59, 0.85);
+        }
+        
+        .dark body {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        
         /* Mobile menu animation */
         .mobile-menu-enter {
             animation: slideDown 0.3s ease-out;
         }
     </style>
 </head>
-<body class="bg-gradient-mesh min-h-screen">
+<body class="bg-gradient-mesh min-h-screen dark:bg-slate-900 dark:text-slate-100">
     <!-- Navigation Bar -->
-    <nav class="glass border-b border-white/20 sticky top-0 z-40 shadow-lg shadow-black/5">
+    <nav class="glass dark:glass-dark border-b border-white/20 dark:border-slate-700 sticky top-0 z-40 shadow-lg shadow-black/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
@@ -160,26 +183,34 @@
                 <!-- Navigation Links -->
                 {% if current_user.is_authenticated %}
                     <div class="hidden md:flex items-center gap-1">
-                        <a href="{{ url_for('index') }}" class="px-4 py-2 rounded-lg text-slate-600 hover:text-teal-600 hover:bg-teal-50 font-medium transition-all duration-200">
+                        <a href="{{ url_for('index') }}" class="px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all duration-200">
                             <span class="flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                                 Dashboard
                             </span>
                         </a>
-                        <a href="{{ url_for('courses') }}" class="px-4 py-2 rounded-lg text-slate-600 hover:text-teal-600 hover:bg-teal-50 font-medium transition-all duration-200">
+                        <a href="{{ url_for('courses') }}" class="px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all duration-200">
                             <span class="flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                                 Courses
                             </span>
                         </a>
-                        <a href="{{ url_for('library') }}" class="px-4 py-2 rounded-lg text-slate-600 hover:text-teal-600 hover:bg-teal-50 font-medium transition-all duration-200">
+                        <a href="{{ url_for('library') }}" class="px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all duration-200">
                             <span class="flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
                                 E-Library
                             </span>
                         </a>
+                        {% if current_user.can_manage_courses() %}
+                            <a href="{{ url_for('admin_courses') }}" class="px-4 py-2 rounded-lg text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 hover:bg-violet-50 dark:hover:bg-slate-700 font-medium transition-all duration-200">
+                                <span class="flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                                    My Courses
+                                </span>
+                            </a>
+                        {% endif %}
                         {% if current_user.is_admin() %}
-                            <a href="{{ url_for('admin_approvals') }}" class="px-4 py-2 rounded-lg text-amber-600 hover:text-amber-700 hover:bg-amber-50 font-medium transition-all duration-200">
+                            <a href="{{ url_for('admin_approvals') }}" class="px-4 py-2 rounded-lg text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-slate-700 font-medium transition-all duration-200">
                                 <span class="flex items-center gap-2">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                     Admin
@@ -190,13 +221,23 @@
 
                     <!-- User Menu -->
                     <div class="flex items-center gap-4">
-                        <div class="hidden sm:flex items-center gap-3 bg-gradient-to-r from-slate-50 to-white px-4 py-2 rounded-xl border border-slate-200/50 shadow-sm">
+                        <!-- Dark Mode Toggle -->
+                        <button id="darkModeToggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" title="Toggle dark mode">
+                            <svg id="sunIcon" class="w-5 h-5 text-slate-800 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            <svg id="moonIcon" class="w-5 h-5 text-slate-200 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                            </svg>
+                        </button>
+                        
+                        <div class="hidden sm:flex items-center gap-3 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-700 px-4 py-2 rounded-xl border border-slate-200/50 dark:border-slate-600 shadow-sm">
                             <div class="w-9 h-9 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-teal-500/30">
                                 {{ current_user.username[0].upper() }}
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-slate-800">{{ current_user.username }}</p>
-                                <p class="text-xs text-slate-500 capitalize">{{ current_user.role }}</p>
+                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ current_user.username }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 capitalize">{{ current_user.role }}</p>
                             </div>
                         </div>
                         <a href="{{ url_for('logout') }}" class="flex items-center gap-2 text-slate-500 hover:text-red-500 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-red-50">
@@ -347,6 +388,17 @@
         if (mobileMenuBtn && mobileMenu) {
             mobileMenuBtn.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
+            });
+        }
+        
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const htmlRoot = document.documentElement;
+        
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = htmlRoot.classList.toggle('dark');
+                localStorage.setItem('darkMode', isDark);
             });
         }
     </script>

@@ -52,6 +52,16 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def pemateri_required(f):
+    """Decorator to require pemateri or admin role for course management."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.can_manage_courses():
+            flash('Instructor or Admin access required.', 'danger')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 def get_course_attendance_today(user_id, course_id):
     """Check if user has marked attendance for this course today."""
     today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -85,6 +95,7 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
         division = request.form.get('division', 'Medical')
+        request_pemateri = request.form.get('request_pemateri') == 'on'  # Checkbox for pemateri role request
         
         # Validate input
         if not username or not email or not password:
@@ -100,13 +111,17 @@ def register():
             flash('Email already exists.', 'danger')
             return redirect(url_for('register'))
         
-        # Create new user
-        user = User(username=username, email=email, division=division, role='user')
+        # Create new user with pemateri role if requested
+        role = 'pemateri' if request_pemateri else 'user'
+        user = User(username=username, email=email, division=division, role=role)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
         
-        flash('Registration successful! Please log in.', 'success')
+        if request_pemateri:
+            flash('Registration successful! You are registered as an Instructor. Please log in.', 'success')
+        else:
+            flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('login'))
     
     return render_template('register.html')
@@ -352,6 +367,36 @@ def download_document(book_id):
         flash(f'Error downloading file: {str(e)}', 'danger')
         return redirect(url_for('library'))
 
+@app.route('/library/<int:book_id>/view')
+@login_required
+def view_document(book_id):
+    """View a library document inline (for preview)."""
+    book = LibraryBook.query.get_or_404(book_id)
+    
+    # Check access: admins can view pending, users can view approved
+    if book.status == 'pending' and not current_user.is_admin():
+        flash('You do not have permission to view this document.', 'danger')
+        return redirect(url_for('library'))
+    elif book.status == 'rejected':
+        flash('This document has been rejected.', 'danger')
+        return redirect(url_for('library'))
+    
+    # Verify file exists
+    if not os.path.exists(book.file_path):
+        flash('File not found.', 'danger')
+        return redirect(url_for('library'))
+    
+    try:
+        # Return file with inline disposition for browser preview
+        return send_file(
+            book.file_path,
+            as_attachment=False,  # Display inline, not download
+            download_name=f"{book.title}_{book.id}.{book.file_path.rsplit('.', 1)[1]}"
+        )
+    except Exception as e:
+        flash(f'Error viewing file: {str(e)}', 'danger')
+        return redirect(url_for('library'))
+
 # ============================================================================
 # Admin Routes
 # ============================================================================
@@ -394,32 +439,37 @@ def reject_book(book_id):
 
 @app.route('/admin/courses')
 @login_required
-@admin_required
+@pemateri_required
 def admin_courses():
-    """Admin page to create and manage courses."""
-    courses = Course.query.all()
+    """Pemateri/Admin page to create and manage courses."""
+    # If pemateri (not admin), show only their courses
+    if current_user.is_pemateri() and not current_user.is_admin():
+        courses = Course.query.filter_by(instructor_id=current_user.id).all()
+    else:
+        # Admin sees all courses
+        courses = Course.query.all()
     return render_template('admin_courses.html', courses=courses)
 
 @app.route('/admin/courses/create', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@pemateri_required
 def create_course():
     """Create a new course."""
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
-        instructor = request.form.get('instructor')
         category = request.form.get('category', 'medical')
         thumbnail_url = request.form.get('thumbnail_url')
         
-        if not title or not instructor:
-            flash('Title and Instructor are required.', 'danger')
+        if not title:
+            flash('Title is required.', 'danger')
             return redirect(url_for('create_course'))
         
+        # Create course with current user as instructor
         course = Course(
             title=title,
             description=description,
-            instructor=instructor,
+            instructor_id=current_user.id,  # Set to current user (pemateri/admin)
             category=category,
             thumbnail_url=thumbnail_url
         )
@@ -433,10 +483,15 @@ def create_course():
 
 @app.route('/admin/courses/<int:course_id>/modules', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@pemateri_required
 def manage_modules(course_id):
     """Manage modules for a course."""
     course = Course.query.get_or_404(course_id)
+    
+    # Check permission: only course creator or admin can manage
+    if not current_user.is_admin() and course.instructor_id != current_user.id:
+        flash('You do not have permission to manage this course.', 'danger')
+        return redirect(url_for('admin_courses'))
     
     if request.method == 'POST':
         title = request.form.get('title')
@@ -461,10 +516,15 @@ def manage_modules(course_id):
 
 @app.route('/admin/modules/<int:module_id>/materials', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@pemateri_required
 def manage_materials(module_id):
-    """Manage materials for a module."""
     module = CourseModule.query.get_or_404(module_id)
+    course = module.course
+    
+    # Check permission: only course creator or admin can manage
+    if not current_user.is_admin() and course.instructor_id != current_user.id:
+        flash('You do not have permission to manage this course.', 'danger')
+        return redirect(url_for('admin_courses'))
     
     if request.method == 'POST':
         title = request.form.get('title')
@@ -527,21 +587,22 @@ def init_db():
         admin = User(username='admin', email='admin@eleary.com', role='admin', division='Administration')
         admin.set_password('admin123')
         
-        # Create sample users
-        user1 = User(username='dr_ahmad', email='ahmad@hospital.com', role='user', division='Medical')
+        # Create pemateri (instructor) user
+        pemateri1 = User(username='dr_ahmad', email='ahmad@hospital.com', role='pemateri', division='Medical')
+        pemateri1.set_password('password123')
+        
+        # Create regular user
+        user1 = User(username='siti_nurse', email='siti@hospital.com', role='user', division='Medical')
         user1.set_password('password123')
         
-        user2 = User(username='siti_nurse', email='siti@hospital.com', role='user', division='Medical')
-        user2.set_password('password123')
-        
-        db.session.add_all([admin, user1, user2])
+        db.session.add_all([admin, pemateri1, user1])
         db.session.commit()
         
-        # Create sample courses
+        # Create sample courses with instructor_id
         course1 = Course(
             title='Pengenalan Sistem Informasi Kesehatan',
             description='Kursus dasar tentang sistem informasi kesehatan dan penggunaannya di rumah sakit.',
-            instructor='Dr. Ahmad',
+            instructor_id=pemateri1.id,  # Assign to pemateri
             category='medical',
             thumbnail_url='https://via.placeholder.com/300x200?text=SIK'
         )
@@ -549,7 +610,7 @@ def init_db():
         course2 = Course(
             title='Basic IT Security for Medical Staff',
             description='Dasar-dasar keamanan IT untuk staf medis.',
-            instructor='Prof. Budi',
+            instructor_id=admin.id,  # Assign to admin
             category='it',
             thumbnail_url='https://via.placeholder.com/300x200?text=Security'
         )
@@ -557,7 +618,7 @@ def init_db():
         course3 = Course(
             title='Hospital Management Best Practices',
             description='Praktik terbaik dalam manajemen rumah sakit.',
-            instructor='Dr. Siti',
+            instructor_id=pemateri1.id,  # Assign to pemateri
             category='admin',
             thumbnail_url='https://via.placeholder.com/300x200?text=Management'
         )
@@ -611,7 +672,7 @@ def init_db():
         )
         
         book2 = LibraryBook(
-            uploader_id=user2.id,
+            uploader_id=user1.id,
             title='Nursing Guidelines',
             description='Pedoman nursing terkini',
             file_path='/uploads/nursing_guidelines.pdf',

@@ -105,11 +105,11 @@
                             <!-- Instructor -->
                             <div class="mt-auto mb-4 flex items-center gap-3">
                                 <div class="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                    {{ course.instructor[0].upper() }}
+                                    {{ course.instructor_user.username[0].upper() if course.instructor_user else '?' }}
                                 </div>
                                 <div>
                                     <p class="text-xs text-slate-500">Instructor</p>
-                                    <p class="text-sm font-semibold text-slate-800">{{ course.instructor }}</p>
+                                    <p class="text-sm font-semibold text-slate-800">{{ course.instructor_user.username if course.instructor_user else 'Unknown' }}</p>
                                 </div>
                             </div>
 

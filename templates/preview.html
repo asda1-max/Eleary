@@ -49,7 +49,7 @@
                 <!-- PDF Preview -->
                 <div class="bg-slate-900 rounded-lg">
                     <iframe 
-                        src="{{ url_for('download_document', book_id=book.id) }}"
+                        src="{{ url_for('view_document', book_id=book.id) }}"
                         class="w-full h-screen rounded-lg"
                         type="application/pdf">
                         <p class="text-white p-6">

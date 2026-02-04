@@ -8,13 +8,13 @@ db = SQLAlchemy()
 class User(UserMixin, db.Model):
     """
     User model for authentication and role management.
-    Roles: 'admin' or 'user'
+    Roles: 'admin', 'pemateri' (instructor), or 'user'
     """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), default='user', nullable=False)  # 'admin' or 'user'
+    role = db.Column(db.String(20), default='user', nullable=False)  # 'admin', 'pemateri', or 'user'
     division = db.Column(db.String(100), nullable=True)  # e.g., Medical, IT, Admin
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -22,6 +22,7 @@ class User(UserMixin, db.Model):
     uploaded_books = db.relationship('LibraryBook', backref='uploader', lazy='dynamic', foreign_keys='LibraryBook.uploader_id')
     attendance_logs = db.relationship('AttendanceLog', backref='user', lazy='dynamic')
     enrollments = db.relationship('CourseEnrollment', backref='user', lazy='dynamic')
+    instructed_courses = db.relationship('Course', backref='instructor_user', lazy='dynamic', foreign_keys='Course.instructor_id')
     
     def set_password(self, password):
         """Hash and set password."""
@@ -34,6 +35,14 @@ class User(UserMixin, db.Model):
     def is_admin(self):
         """Check if user has admin role."""
         return self.role == 'admin'
+    
+    def is_pemateri(self):
+        """Check if user has pemateri (instructor) role."""
+        return self.role == 'pemateri'
+    
+    def can_manage_courses(self):
+        """Check if user can create courses."""
+        return self.role in ['admin', 'pemateri']
     
     def __repr__(self):
         return f'<User {self.username}>'
@@ -48,7 +57,7 @@ class Course(db.Model):
     title = db.Column(db.String(255), nullable=False, index=True)
     description = db.Column(db.Text, nullable=True)
     thumbnail_url = db.Column(db.String(255), nullable=True)
-    instructor = db.Column(db.String(120), nullable=False)
+    instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)  # Foreign Key to User
     category = db.Column(db.String(50), default='medical', nullable=False)  # 'medical', 'admin', 'it'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
