@@ -264,6 +264,12 @@
                                 E-Library
                             </span>
                         </a>
+                        <a href="{{ url_for('account_settings') }}" class="px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all duration-200">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                Account
+                            </span>
+                        </a>
                         {% if current_user.can_manage_courses() %}
                             <a href="{{ url_for('admin_courses') }}" class="px-4 py-2 rounded-lg text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 hover:bg-violet-50 dark:hover:bg-slate-700 font-medium transition-all duration-200">
                                 <span class="flex items-center gap-2">
@@ -301,9 +307,13 @@
                         </button>
                         
                         <div class="hidden sm:flex items-center gap-3 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-700 px-4 py-2 rounded-xl border border-slate-200/50 dark:border-slate-600 shadow-sm">
-                            <div class="w-9 h-9 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-teal-500/30">
-                                {{ current_user.username[0].upper() }}
-                            </div>
+                            {% if current_user.profile_image %}
+                                <img src="{{ url_for('uploaded_file', filename=current_user.profile_image) }}" alt="Profile" class="w-9 h-9 rounded-full object-cover border border-teal-500/30" />
+                            {% else %}
+                                <div class="w-9 h-9 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-teal-500/30">
+                                    {{ current_user.username[0].upper() }}
+                                </div>
+                            {% endif %}
                             <div>
                                 <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ current_user.username }}</p>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 capitalize">{{ current_user.role }}</p>
@@ -343,6 +353,10 @@
                         <a href="{{ url_for('library') }}" class="px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
                             E-Library
+                        </a>
+                        <a href="{{ url_for('account_settings') }}" class="px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                            Account Settings
                         </a>
                         {% if current_user.is_admin() %}
                             <a href="{{ url_for('admin_approvals') }}" class="px-4 py-3 rounded-lg text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">

@@ -47,10 +47,11 @@ def register_admin_routes(app):
     @login_required
     @admin_required
     def admin_users():
-        """Admin page to manage users, approve pemateri requests, and create admins."""
+        """Admin page to manage users, approve role requests, and manage access."""
         pending_pemateri = User.query.filter_by(pending_role='pemateri').all()
+        pending_admin = User.query.filter_by(pending_role='admin').all()
         all_users = User.query.order_by(User.created_at.desc()).all()
-        return render_template('admin_users.html', pending_pemateri=pending_pemateri, all_users=all_users)
+        return render_template('admin_users.html', pending_pemateri=pending_pemateri, pending_admin=pending_admin, all_users=all_users)
 
     @app.route('/admin/users/<int:user_id>/approve_pemateri', methods=['POST'])
     @login_required
@@ -75,6 +76,32 @@ def register_admin_routes(app):
         flash(f'Instructor request for {user.username} rejected.', 'info')
         return redirect(url_for('admin_users'))
 
+    @app.route('/admin/users/<int:user_id>/approve_admin', methods=['POST'])
+    @login_required
+    @admin_required
+    def approve_admin(user_id):
+        """Approve admin role request."""
+        user = User.query.get_or_404(user_id)
+        if user.id == current_user.id:
+            flash('You are already an admin.', 'info')
+        else:
+            user.role = 'admin'
+            user.pending_role = None
+            db.session.commit()
+            flash(f'{user.username} is now an Admin.', 'success')
+        return redirect(url_for('admin_users'))
+
+    @app.route('/admin/users/<int:user_id>/reject_admin', methods=['POST'])
+    @login_required
+    @admin_required
+    def reject_admin(user_id):
+        """Reject admin role request."""
+        user = User.query.get_or_404(user_id)
+        user.pending_role = None
+        db.session.commit()
+        flash(f'Admin request for {user.username} rejected.', 'info')
+        return redirect(url_for('admin_users'))
+
     @app.route('/admin/users/<int:user_id>/make_admin', methods=['POST'])
     @login_required
     @admin_required
@@ -88,6 +115,35 @@ def register_admin_routes(app):
             user.pending_role = None
             db.session.commit()
             flash(f'{user.username} is now an Admin.', 'success')
+        return redirect(url_for('admin_users'))
+
+    @app.route('/admin/users/<int:user_id>/revoke_admin', methods=['POST'])
+    @login_required
+    @admin_required
+    def revoke_admin(user_id):
+        """Remove admin access from a user."""
+        user = User.query.get_or_404(user_id)
+        if user.id == current_user.id:
+            flash('You cannot remove your own admin access.', 'danger')
+        else:
+            if user.role == 'admin':
+                user.role = 'user'
+                user.pending_role = None
+                db.session.commit()
+                flash(f'Admin access removed from {user.username}.', 'success')
+        return redirect(url_for('admin_users'))
+
+    @app.route('/admin/users/<int:user_id>/revoke_pemateri', methods=['POST'])
+    @login_required
+    @admin_required
+    def revoke_pemateri(user_id):
+        """Remove instructor access from a user."""
+        user = User.query.get_or_404(user_id)
+        if user.role == 'pemateri':
+            user.role = 'user'
+            user.pending_role = None
+            db.session.commit()
+            flash(f'Instructor access removed from {user.username}.', 'success')
         return redirect(url_for('admin_users'))
 
     @app.route('/admin/users/<int:user_id>/delete', methods=['POST'])

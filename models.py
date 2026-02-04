@@ -17,6 +17,8 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20), default='user', nullable=False)  # 'admin', 'pemateri', or 'user'
     pending_role = db.Column(db.String(20), nullable=True)  # Requested role pending admin approval
     division = db.Column(db.String(100), nullable=True)  # e.g., Medical, IT, Admin, Mahasiswa/Koas
+    profile_image = db.Column(db.String(255), nullable=True)  # Relative path under /uploads
+    bio = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships

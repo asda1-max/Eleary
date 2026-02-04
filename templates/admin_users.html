@@ -68,6 +68,51 @@
         </div>
         {% endif %}
 
+        <!-- Pending Admin Requests -->
+        {% if pending_admin %}
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <svg class="w-6 h-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12a1 1 0 102 0V7a1 1 0 10-2 0v5zm1 6a8 8 0 100-16 8 8 0 000 16z"/>
+                </svg>
+                Pending Admin Requests ({{ pending_admin|length }})
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for user in pending_admin %}
+                <div class="bg-white dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/50 dark:border-slate-700/50 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                {{ user.username[0].upper() }}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-white">{{ user.username }}</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">{{ user.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2 mb-4">
+                        <p class="text-sm text-slate-600 dark:text-slate-300"><span class="font-semibold">Division:</span> {{ user.division }}</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-300"><span class="font-semibold">Registered:</span> {{ user.created_at.strftime('%d %b %Y') }}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <form method="POST" action="{{ url_for('approve_admin', user_id=user.id) }}" class="flex-1">
+                            <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 dark:from-indigo-600 dark:to-purple-600 dark:hover:from-indigo-700 dark:hover:to-purple-700 text-white font-semibold py-2 px-4 rounded-2xl transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/30">
+                                Approve
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('reject_admin', user_id=user.id) }}" class="flex-1">
+                            <button type="submit" class="w-full bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 dark:from-red-600 dark:to-rose-600 dark:hover:from-red-700 dark:hover:to-rose-700 text-white font-semibold py-2 px-4 rounded-2xl transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-red-500/30">
+                                Reject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <!-- All Users -->
         <div>
             <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
@@ -117,11 +162,25 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">{{ user.created_at.strftime('%d %b %Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex gap-2">
+                                    <div class="flex gap-2 flex-wrap">
                                         {% if user.id != current_user.id and user.role != 'admin' %}
                                             <form method="POST" action="{{ url_for('make_admin', user_id=user.id) }}">
                                                 <button type="submit" class="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 dark:from-teal-600 dark:to-emerald-600 dark:hover:from-teal-700 dark:hover:to-emerald-700 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-teal-500/30" title="Make Admin">
-                                                    Admin
+                                                    Make Admin
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        {% if user.id != current_user.id and user.role == 'admin' %}
+                                            <form method="POST" action="{{ url_for('revoke_admin', user_id=user.id) }}" onsubmit="return confirm('Remove admin access from {{ user.username }}?')">
+                                                <button type="submit" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 dark:from-amber-600 dark:to-orange-600 dark:hover:from-amber-700 dark:hover:to-orange-700 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-amber-500/30" title="Revoke Admin">
+                                                    Revoke Admin
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        {% if user.role == 'pemateri' %}
+                                            <form method="POST" action="{{ url_for('revoke_pemateri', user_id=user.id) }}" onsubmit="return confirm('Remove instructor access from {{ user.username }}?')">
+                                                <button type="submit" class="bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 dark:from-slate-600 dark:to-slate-700 dark:hover:from-slate-700 dark:hover:to-slate-800 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-slate-500/30" title="Revoke Instructor">
+                                                    Revoke Instructor
                                                 </button>
                                             </form>
                                         {% endif %}
