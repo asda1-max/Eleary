@@ -1,10 +1,11 @@
 import os
 from flask import Flask
-from models import db, User, Course, CourseModule, CourseMaterial, LibraryBook, AttendanceLog, CourseEnrollment
+from models import db, User, Course, CourseModule, CourseMaterial, LibraryBook, AttendanceLog, CourseEnrollment, News
 from app.extensions import login_manager
 from app.routes.auth import register_auth_routes
 from app.routes.courses import register_course_routes
 from app.routes.library import register_library_routes
+from app.routes.news import register_news_routes
 from app.routes.admin import register_admin_routes
 from app.routes.errors import register_error_handlers
 from app.routes.uploads import register_upload_routes
@@ -41,6 +42,7 @@ def create_app():
     register_auth_routes(app)
     register_course_routes(app)
     register_library_routes(app)
+    register_news_routes(app)
     register_admin_routes(app)
     register_error_handlers(app)
     register_upload_routes(app)
@@ -57,6 +59,7 @@ def create_app():
             'LibraryBook': LibraryBook,
             'AttendanceLog': AttendanceLog,
             'CourseEnrollment': CourseEnrollment,
+            'News': News,
         }
 
     return app

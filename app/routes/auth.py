@@ -2,7 +2,7 @@ import os
 from flask import render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
-from models import db, User, Course, CourseEnrollment
+from models import db, User, Course, CourseEnrollment, News
 
 
 def register_auth_routes(app):
@@ -12,7 +12,9 @@ def register_auth_routes(app):
         if current_user.is_authenticated:
             enrolled_courses = CourseEnrollment.query.filter_by(user_id=current_user.id).count()
             course_total = Course.query.count()
-            return render_template('dashboard.html', enrolled_courses=enrolled_courses, course_total=course_total)
+            # Get 3 latest news for carousel
+            latest_news = News.query.order_by(News.created_at.desc()).limit(3).all()
+            return render_template('dashboard.html', enrolled_courses=enrolled_courses, course_total=course_total, latest_news=latest_news)
         return redirect(url_for('login'))
 
     @app.route('/register', methods=['GET', 'POST'])

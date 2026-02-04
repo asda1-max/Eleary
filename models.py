@@ -127,6 +127,25 @@ class LibraryBook(db.Model):
         return f'<LibraryBook {self.title}>'
 
 
+class News(db.Model):
+    """
+    News model for announcements and updates.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False)  # HTML content from Quill editor
+    image_path = db.Column(db.String(255), nullable=True)  # Path to news image
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    author = db.relationship('User', backref='news_articles', lazy=True)
+    
+    def __repr__(self):
+        return f'<News {self.title}>'
+
+
 class AttendanceLog(db.Model):
     """
     Attendance tracking for users.
