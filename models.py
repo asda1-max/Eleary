@@ -82,6 +82,7 @@ class CourseModule(db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False, index=True)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    image_path = db.Column(db.String(255), nullable=True)  # Path to module image
     order_index = db.Column(db.Integer, default=0, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -101,6 +102,7 @@ class CourseMaterial(db.Model):
     module_id = db.Column(db.Integer, db.ForeignKey('course_module.id'), nullable=False, index=True)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    image_path = db.Column(db.String(255), nullable=True)  # Path to material thumbnail/image
     file_path = db.Column(db.String(255), nullable=True)  # Path to uploaded file or external URL
     type = db.Column(db.String(50), default='pdf', nullable=False)  # 'pdf', 'video', 'assignment'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

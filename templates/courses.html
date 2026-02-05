@@ -99,7 +99,7 @@
 
                             <!-- Description -->
                             {% if course.description %}
-                                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">{{ course.description }}</p>
+                                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">{{ (course.description|striptags)[:150] }}...</p>
                             {% endif %}
 
                             <!-- Instructor -->

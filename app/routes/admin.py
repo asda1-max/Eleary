@@ -1,8 +1,8 @@
 import os
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from models import db, User, Course, CourseModule, CourseMaterial, LibraryBook
-from app.utils import admin_required, pemateri_required, sanitize_rich_text, convert_youtube_url
+from app.utils import admin_required, pemateri_required, sanitize_rich_text, convert_youtube_url, save_upload_image, allowed_image_file
 
 
 def register_admin_routes(app):
@@ -189,6 +189,14 @@ def register_admin_routes(app):
                 flash('Title is required.', 'danger')
                 return redirect(url_for('create_course'))
 
+            # Handle image upload if provided
+            if 'thumbnail_image' in request.files:
+                image_file = request.files['thumbnail_image']
+                if image_file and image_file.filename:
+                    image_path = save_upload_image(image_file, subfolder='courses')
+                    if image_path:
+                        thumbnail_url = image_path
+
             # Create course with current user as instructor
             course = Course(
                 title=title,
@@ -204,6 +212,46 @@ def register_admin_routes(app):
             return redirect(url_for('admin_courses'))
 
         return render_template('admin_create_course.html')
+
+    @app.route('/admin/courses/<int:course_id>/edit', methods=['GET', 'POST'])
+    @login_required
+    @pemateri_required
+    def edit_course(course_id):
+        """Edit an existing course."""
+        course = Course.query.get_or_404(course_id)
+
+        # Check permission - admin can edit any, pemateri can edit only their own
+        if not current_user.is_admin() and course.instructor_id != current_user.id:
+            flash('You do not have permission to edit this course.', 'danger')
+            return redirect(url_for('admin_courses'))
+
+        if request.method == 'POST':
+            title = request.form.get('title')
+            description = sanitize_rich_text(request.form.get('description'))
+            category = request.form.get('category', 'medical')
+
+            if not title:
+                flash('Title is required.', 'danger')
+                return redirect(url_for('edit_course', course_id=course_id))
+
+            # Update course details
+            course.title = title
+            course.description = description
+            course.category = category
+
+            # Handle image upload if provided
+            if 'thumbnail_image' in request.files:
+                image_file = request.files['thumbnail_image']
+                if image_file and image_file.filename:
+                    image_path = save_upload_image(image_file, subfolder='courses')
+                    if image_path:
+                        course.thumbnail_url = image_path
+
+            db.session.commit()
+            flash(f'Course "{title}" updated successfully!', 'success')
+            return redirect(url_for('admin_courses'))
+
+        return render_template('admin_edit_course.html', course=course)
 
     @app.route('/admin/courses/<int:course_id>/delete', methods=['POST'])
     @login_required
@@ -244,10 +292,18 @@ def register_admin_routes(app):
                 flash('Module title is required.', 'danger')
                 return redirect(url_for('manage_modules', course_id=course_id))
 
+            # Handle image upload if provided
+            image_path = None
+            if 'image' in request.files:
+                image_file = request.files['image']
+                if image_file and image_file.filename:
+                    image_path = save_upload_image(image_file, subfolder='modules')
+
             module = CourseModule(
                 course_id=course_id,
                 title=title,
                 description=description,
+                image_path=image_path,
                 order_index=order_index
             )
             db.session.add(module)
@@ -279,6 +335,13 @@ def register_admin_routes(app):
             if not title:
                 flash('Module title is required.', 'danger')
                 return redirect(url_for('edit_module', module_id=module_id))
+
+            # Handle image upload if provided
+            if 'image' in request.files:
+                image_file = request.files['image']
+                if image_file and image_file.filename:
+                    image_path = save_upload_image(image_file, subfolder='modules')
+                    module.image_path = image_path
 
             module.title = title
             module.description = description
@@ -337,10 +400,18 @@ def register_admin_routes(app):
                 flash('Material title is required.', 'danger')
                 return redirect(url_for('manage_materials', module_id=module_id))
 
+            # Handle image upload if provided
+            image_path = None
+            if 'image' in request.files:
+                image_file = request.files['image']
+                if image_file and image_file.filename:
+                    image_path = save_upload_image(image_file, subfolder='materials')
+
             material = CourseMaterial(
                 module_id=module_id,
                 title=title,
                 description=description,
+                image_path=image_path,
                 file_path=file_path,
                 type=material_type
             )
@@ -380,6 +451,13 @@ def register_admin_routes(app):
                 flash('Material title is required.', 'danger')
                 return redirect(url_for('edit_material', material_id=material_id))
 
+            # Handle image upload if provided
+            if 'image' in request.files:
+                image_file = request.files['image']
+                if image_file and image_file.filename:
+                    image_path = save_upload_image(image_file, subfolder='materials')
+                    material.image_path = image_path
+
             material.title = title
             material.description = description
             material.file_path = file_path
@@ -411,3 +489,54 @@ def register_admin_routes(app):
 
         flash(f'Material "{title}" deleted successfully.', 'success')
         return redirect(url_for('manage_materials', module_id=module.id))
+
+    @app.route('/admin/materials/upload-image', methods=['POST'])
+    @login_required
+    @pemateri_required
+    def upload_material_image():
+        """Handle image uploads for Quill editor in material management.
+        
+        Returns JSON with:
+        - success: True/False
+        - message: Status message
+        - url: Image URL if successful
+        """
+        if 'image' not in request.files:
+            return jsonify({
+                'success': False,
+                'message': 'No image file provided'
+            }), 400
+        
+        file_obj = request.files['image']
+        
+        if not file_obj or file_obj.filename == '':
+            return jsonify({
+                'success': False,
+                'message': 'No image selected'
+            }), 400
+        
+        if not allowed_image_file(file_obj.filename):
+            return jsonify({
+                'success': False,
+                'message': 'Invalid image format. Allowed: JPG, PNG, GIF, WebP, SVG'
+            }), 400
+        
+        try:
+            image_path = save_upload_image(file_obj, subfolder='materials')
+            if not image_path:
+                return jsonify({
+                    'success': False,
+                    'message': 'Failed to save image'
+                }), 400
+            
+            return jsonify({
+                'success': True,
+                'message': 'Image uploaded successfully',
+                'url': image_path
+            })
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'message': f'Upload error: {str(e)}'
+            }), 500
+

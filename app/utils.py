@@ -1,16 +1,58 @@
 from datetime import datetime, timedelta
 from functools import wraps
 import bleach
-from flask import flash, redirect, url_for
+import os
+import uuid
+from flask import flash, redirect, url_for, current_app
 from flask_login import current_user
 from models import AttendanceLog
+from werkzeug.utils import secure_filename
 
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt'}
+ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'}
 
 
 def allowed_file(filename):
     """Check if file extension is allowed."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def allowed_image_file(filename):
+    """Check if image file extension is allowed."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+
+
+def save_upload_image(file_obj, subfolder='materials'):
+    """Save uploaded image file and return relative path.
+    
+    Args:
+        file_obj: File object from request.files
+        subfolder: Subfolder within uploads (default: 'materials')
+    
+    Returns:
+        Relative path to saved image or None if invalid
+    """
+    if not file_obj or file_obj.filename == '':
+        return None
+    
+    if not allowed_image_file(file_obj.filename):
+        return None
+    
+    # Generate unique filename
+    ext = file_obj.filename.rsplit('.', 1)[1].lower()
+    unique_filename = f"{uuid.uuid4()}.{ext}"
+    
+    # Create subfolder if it doesn't exist
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    subfolder_path = os.path.join(upload_folder, subfolder)
+    os.makedirs(subfolder_path, exist_ok=True)
+    
+    # Save file
+    file_path = os.path.join(subfolder_path, unique_filename)
+    file_obj.save(file_path)
+    
+    # Return relative path for URL usage
+    return f'/uploads/{subfolder}/{unique_filename}'
 
 
 def convert_youtube_url(url):

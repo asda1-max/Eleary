@@ -19,7 +19,7 @@
     <!-- Main Content -->
     <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div class="bg-white rounded-lg shadow-md p-8 border border-slate-200">
-            <form method="POST" class="space-y-6">
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
                 <!-- Title -->
                 <div>
                     <label for="title" class="block text-sm font-semibold text-slate-900 mb-2">Material Title *</label>
@@ -27,6 +27,30 @@
                            value="{{ material.title }}"
                            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                            placeholder="e.g., Apa itu SIK?">
+                </div>
+
+                <!-- Image Upload -->
+                <div>
+                    <label for="image" class="block text-sm font-semibold text-slate-900 mb-2">Material Image/Thumbnail</label>
+                    {% if material.image_path %}
+                        <div class="mb-4 p-4 bg-teal-50 rounded-lg border border-teal-200">
+                            <p class="text-sm text-teal-700 mb-2">Current image:</p>
+                            <img src="{{ material.image_path }}" alt="Current material image" class="max-h-32 rounded">
+                        </div>
+                    {% endif %}
+                    <div class="flex items-center justify-center w-full">
+                        <label for="image" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="text-sm text-slate-600"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                <p class="text-xs text-slate-500">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                            <input id="image" type="file" class="hidden" name="image" accept="image/*">
+                        </label>
+                    </div>
+                    <p id="image-name" class="text-sm text-slate-600 mt-2"></p>
                 </div>
 
                 <!-- Description -->
@@ -49,8 +73,6 @@
                         <br><strong>PDF/Other:</strong> Enter file path or URL directly.
                     </p>
                 </div>
-                           placeholder="/uploads/file.pdf or https://www.youtube.com/embed/...">
-                </div>
 
                 <!-- Type -->
                 <div>
@@ -64,7 +86,7 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 pt-4 border-t border-slate-200">
                     <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -90,13 +112,86 @@
 <script>
     const editor = new Quill('#material-description-editor', {
         theme: 'snow',
-        placeholder: 'Brief description of the material...'
+        placeholder: 'Brief description of the material...',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'script': 'sub'}, { 'script': 'super' }],
+                [{ 'header': 1 }, { 'header': 2 }],
+                ['link', 'image'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Handle image uploads through Quill toolbar
+    const imageInput = document.createElement('input');
+    imageInput.setAttribute('type', 'file');
+    imageInput.setAttribute('accept', 'image/*');
+    imageInput.style.display = 'none';
+
+    imageInput.addEventListener('change', async () => {
+        const file = imageInput.files[0];
+        if (!file) return;
+
+        // Show loading state
+        const range = editor.getSelection();
+        editor.updateContents({ retain: range.index }, { index: range.index }, 'silent');
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch('/admin/materials/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Insert image at cursor position
+                if (range) {
+                    editor.insertEmbed(range.index, 'image', data.url);
+                    editor.setSelection(range.index + 1);
+                }
+            } else {
+                alert('Upload failed: ' + (data.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Upload error: ' + error.message);
+        }
+
+        // Reset input
+        imageInput.value = '';
+    });
+
+    // Intercept toolbar image button
+    const toolbar = editor.getModule('toolbar');
+    toolbar.addHandler('image', () => {
+        imageInput.click();
     });
 
     // Load existing description
     const existingDescription = `{{ material.description|safe if material.description else '' }}`;
     if (existingDescription) {
         editor.root.innerHTML = existingDescription;
+    }
+
+    // Handle image file selection display
+    const imageInput2 = document.getElementById('image');
+    if (imageInput2) {
+        imageInput2.addEventListener('change', (e) => {
+            const imageName = document.getElementById('image-name');
+            if (e.target.files && e.target.files[0]) {
+                imageName.textContent = '✓ New image selected: ' + e.target.files[0].name;
+            } else {
+                imageName.textContent = '';
+            }
+        });
     }
 
     document.querySelector('form').addEventListener('submit', () => {
