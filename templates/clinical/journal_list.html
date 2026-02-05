@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Daily Journal - E-Leary{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 py-12">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-4xl font-bold text-slate-900 dark:text-white mb-2">Daily Journal</h1>
+                <p class="text-slate-600 dark:text-slate-300">Reflect on your clinical experiences</p>
+            </div>
+            <a href="{{ url_for('clinical_journal_add') }}" class="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold px-6 py-3 rounded-lg transition-all">
+                + New Journal
+            </a>
+        </div>
+
+        <div class="space-y-6">
+            {% for journal in journals.items %}
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">{{ journal.entry_date.strftime('%A, %B %d, %Y') }}</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">{{ journal.unit }} - {{ journal.shift or 'Full Day' }}</p>
+                    </div>
+                    {% if journal.confidence_level %}
+                    <div class="flex items-center gap-1">
+                        {% for i in range(journal.confidence_level) %}
+                        <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <p class="text-slate-700 dark:text-slate-300 mb-4">{{ journal.journal_text[:200] }}{% if journal.journal_text|length > 200 %}...{% endif %}</p>
+
+                {% if journal.supervisor_feedback %}
+                <div class="p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-800">
+                    <p class="text-sm font-semibold text-teal-700 dark:text-teal-300 mb-1">Supervisor Feedback</p>
+                    <p class="text-slate-700 dark:text-slate-300 text-sm">{{ journal.supervisor_feedback }}</p>
+                </div>
+                {% else %}
+                <p class="text-sm text-slate-400 dark:text-slate-500 italic">Awaiting supervisor feedback</p>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-12 text-center border border-slate-200 dark:border-slate-700">
+                <p class="text-slate-500 dark:text-slate-400">No journal entries yet. Click "New Journal" to start reflecting on your experiences.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if journals.pages > 1 %}
+        <div class="mt-8 flex justify-center gap-2">
+            {% if journals.has_prev %}
+            <a href="{{ url_for('clinical_journal', page=journals.prev_num) }}" class="px-4 py-2 bg-white dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">Previous</a>
+            {% endif %}
+            <span class="px-4 py-2 text-slate-700 dark:text-slate-300">Page {{ journals.page }} of {{ journals.pages }}</span>
+            {% if journals.has_next %}
+            <a href="{{ url_for('clinical_journal', page=journals.next_num) }}" class="px-4 py-2 bg-white dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

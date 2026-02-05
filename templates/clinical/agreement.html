@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Agreement - E-Leary{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 py-12">
+    <div class="max-w-3xl mx-auto px-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-200 dark:border-slate-700">
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">{{ agreement_type.replace('_', ' ').title() }} Agreement</h1>
+            
+            {% if existing_agreement and existing_agreement.signed %}
+            <div class="p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl mb-6">
+                <p class="text-green-800 dark:text-green-200 font-semibold">✓ You have already signed this agreement on {{ existing_agreement.signature_timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+            </div>
+            {% else %}
+            
+            <div class="prose dark:prose-invert max-w-none mb-8 p-6 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 max-h-96 overflow-y-auto">
+                <p class="text-slate-700 dark:text-slate-300 leading-relaxed">{{ agreement_text }}</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('clinical_agreements', agreement_type=agreement_type) }}">
+                <div class="mb-6">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" required class="mt-1 w-5 h-5 text-teal-600 rounded">
+                        <span class="text-slate-700 dark:text-slate-300">I have read and agree to the terms outlined in this agreement.</span>
+                    </label>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold py-4 rounded-lg transition-all">
+                        Sign Agreement
+                    </button>
+                    <a href="{{ url_for('clinical_onboarding') }}" class="flex-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold py-4 rounded-lg transition-all text-center">
+                        Back
+                    </a>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

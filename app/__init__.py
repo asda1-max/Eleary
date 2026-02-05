@@ -1,6 +1,10 @@
 import os
 from flask import Flask
-from models import db, User, Course, CourseModule, CourseMaterial, LibraryBook, AttendanceLog, CourseEnrollment, News
+from models import (db, User, Course, CourseModule, CourseMaterial, LibraryBook, AttendanceLog, CourseEnrollment, News,
+                    StudentProfile, LegalDocument, DigitalAgreement, ElearningModule, ElearningProgress,
+                    PreClinicalAssessment, LogbookEntry, CompetencyChecklist, CompetencyProgress, DailyJournal,
+                    WeeklyAssessment, FinalExam, Evaluation360, ClinicalCertificate, IncidentReport,
+                    StudentFeedback, AlumniProfile, SupervisorValidationPIN)
 from app.extensions import login_manager
 from app.routes.auth import register_auth_routes
 from app.routes.courses import register_course_routes
@@ -9,6 +13,7 @@ from app.routes.news import register_news_routes
 from app.routes.admin import register_admin_routes
 from app.routes.errors import register_error_handlers
 from app.routes.uploads import register_upload_routes
+from app.routes.clinical import register_clinical_routes
 
 
 def create_app():
@@ -46,6 +51,7 @@ def create_app():
     register_admin_routes(app)
     register_error_handlers(app)
     register_upload_routes(app)
+    register_clinical_routes(app)
 
     # Shell context
     @app.shell_context_processor
@@ -60,6 +66,10 @@ def create_app():
             'AttendanceLog': AttendanceLog,
             'CourseEnrollment': CourseEnrollment,
             'News': News,
+            'StudentProfile': StudentProfile,
+            'LogbookEntry': LogbookEntry,
+            'CompetencyProgress': CompetencyProgress,
+            'DailyJournal': DailyJournal,
         }
 
     return app
