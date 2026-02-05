@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from models import (db, User, StudentProfile, LegalDocument, DigitalAgreement, 
-                    ElearningModule, ElearningProgress, PreClinicalAssessment,
+                    Course, CourseEnrollment, PreClinicalAssessment,
                     LogbookEntry, CompetencyChecklist, CompetencyProgress, DailyJournal,
                     WeeklyAssessment, FinalExam, Evaluation360, ClinicalCertificate,
                     IncidentReport, StudentFeedback, AlumniProfile, SupervisorValidationPIN)
@@ -29,8 +29,11 @@ def register_clinical_routes(app):
         # Get progress status
         legal_docs = LegalDocument.query.filter_by(student_id=profile.id).all()
         agreements = DigitalAgreement.query.filter_by(student_id=profile.id).all()
-        elearning_modules = ElearningModule.query.filter_by(is_mandatory=True).order_by(ElearningModule.order_index).all()
-        elearning_progress = ElearningProgress.query.filter_by(student_id=profile.id).all()
+        elearning_courses = Course.query.filter_by(category='clinical').all()
+        enrolled_count = CourseEnrollment.query.join(Course).filter(
+            CourseEnrollment.user_id == current_user.id,
+            Course.category == 'clinical'
+        ).count()
         assessments = PreClinicalAssessment.query.filter_by(student_id=profile.id).all()
         
         # Calculate completion status
@@ -38,16 +41,20 @@ def register_clinical_routes(app):
         docs_required = 4  # referral, health, insurance, integrity_pact
         agreements_signed = len([a for a in agreements if a.signed])
         agreements_required = 4  # confidentiality, ethics, discipline, emergency
-        modules_completed = len([p for p in elearning_progress if p.completed_at])
-        modules_required = len(elearning_modules)
+        modules_completed = enrolled_count
+        modules_required = len(elearning_courses)
         posttest_passed = any(a.assessment_type == 'posttest' and a.passed for a in assessments)
+
+        elearning_complete = modules_required > 0 and modules_completed >= modules_required
+        if profile.elearning_completed != elearning_complete:
+            profile.elearning_completed = elearning_complete
+            db.session.commit()
         
         return render_template('clinical/onboarding.html',
                              profile=profile,
                              legal_docs=legal_docs,
                              agreements=agreements,
-                             elearning_modules=elearning_modules,
-                             elearning_progress={p.module_id: p for p in elearning_progress},
+                             elearning_courses=elearning_courses,
                              assessments=assessments,
                              docs_uploaded=docs_uploaded,
                              docs_required=docs_required,
@@ -193,10 +200,16 @@ def register_clinical_routes(app):
                 flash('This agreement has already been signed.', 'info')
                 return redirect(url_for('clinical_onboarding'))
             
+            signature_data = request.form.get('signature_data', '')
+            if not signature_data:
+                flash('Signature is required.', 'danger')
+                return redirect(request.url)
+            
             ip_address = request.remote_addr
             
             if existing_agreement:
                 existing_agreement.signed = True
+                existing_agreement.signature_data = signature_data
                 existing_agreement.signature_timestamp = datetime.utcnow()
                 existing_agreement.ip_address = ip_address
             else:
@@ -205,6 +218,7 @@ def register_clinical_routes(app):
                     agreement_type=agreement_type,
                     content=agreement_texts.get(agreement_type, ''),
                     signed=True,
+                    signature_data=signature_data,
                     signature_timestamp=datetime.utcnow(),
                     ip_address=ip_address
                 )
@@ -235,60 +249,23 @@ def register_clinical_routes(app):
         if not profile:
             flash('Please complete your student profile first.', 'warning')
             return redirect(url_for('clinical_student_registration'))
-        
-        modules = ElearningModule.query.order_by(ElearningModule.order_index).all()
-        progress_dict = {p.module_id: p for p in ElearningProgress.query.filter_by(student_id=profile.id).all()}
-        
+
+        courses = Course.query.filter_by(category='clinical').order_by(Course.created_at.desc()).all()
+        enrolled_course_ids = {
+            e.course_id for e in CourseEnrollment.query.filter_by(user_id=current_user.id).all()
+        }
+
         return render_template('clinical/elearning_list.html',
                              profile=profile,
-                             modules=modules,
-                             progress_dict=progress_dict)
+                             courses=courses,
+                             enrolled_course_ids=enrolled_course_ids)
     
     @app.route('/clinical/elearning/<int:module_id>', methods=['GET', 'POST'])
     @login_required
     def clinical_elearning_module(module_id):
-        """View and complete e-learning module."""
-        profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
-        if not profile:
-            flash('Please complete your student profile first.', 'warning')
-            return redirect(url_for('clinical_student_registration'))
-        
-        module = ElearningModule.query.get_or_404(module_id)
-        progress = ElearningProgress.query.filter_by(student_id=profile.id, module_id=module_id).first()
-        
-        if not progress:
-            progress = ElearningProgress(student_id=profile.id, module_id=module_id, started_at=datetime.utcnow())
-            db.session.add(progress)
-            db.session.commit()
-        
-        if request.method == 'POST':
-            # Mark module as completed
-            progress.completed_at = datetime.utcnow()
-            progress.completion_percentage = 100
-            time_spent = request.form.get('time_spent', 0, type=int)
-            progress.time_spent_minutes += time_spent
-            
-            db.session.commit()
-            flash(f'Module "{module.title}" completed!', 'success')
-            
-            # Check if all mandatory modules are completed
-            total_mandatory = ElearningModule.query.filter_by(is_mandatory=True).count()
-            completed_mandatory = ElearningProgress.query.join(ElearningModule).filter(
-                ElearningProgress.student_id == profile.id,
-                ElearningProgress.completed_at.isnot(None),
-                ElearningModule.is_mandatory == True
-            ).count()
-            
-            if completed_mandatory >= total_mandatory:
-                profile.elearning_completed = True
-                db.session.commit()
-            
-            return redirect(url_for('clinical_elearning'))
-        
-        return render_template('clinical/elearning_module.html',
-                             profile=profile,
-                             module=module,
-                             progress=progress)
+        """Redirect to course detail for clinical e-learning."""
+        course = Course.query.filter_by(id=module_id, category='clinical').first_or_404()
+        return redirect(url_for('course_detail', course_id=course.id))
     
     @app.route('/clinical/assessment/<assessment_type>', methods=['GET', 'POST'])
     @login_required
@@ -298,6 +275,14 @@ def register_clinical_routes(app):
         if not profile:
             flash('Please complete your student profile first.', 'warning')
             return redirect(url_for('clinical_student_registration'))
+
+        total_clinical = Course.query.filter_by(category='clinical').count()
+        enrolled_clinical = CourseEnrollment.query.join(Course).filter(
+            CourseEnrollment.user_id == current_user.id,
+            Course.category == 'clinical'
+        ).count()
+        profile.elearning_completed = total_clinical > 0 and enrolled_clinical >= total_clinical
+        db.session.commit()
         
         # Check prerequisites
         if assessment_type == 'posttest' and not profile.elearning_completed:

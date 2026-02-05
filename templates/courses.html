@@ -48,6 +48,7 @@
                         <option value="medical" {% if request.args.get('category') == 'medical' %}selected{% endif %}>🏥 Medical</option>
                         <option value="admin" {% if request.args.get('category') == 'admin' %}selected{% endif %}>📋 Administration</option>
                         <option value="it" {% if request.args.get('category') == 'it' %}selected{% endif %}>💻 IT</option>
+                        <option value="clinical" {% if request.args.get('category') == 'clinical' %}selected{% endif %}>🩺 Clinical</option>
                     </select>
                 </div>
 
@@ -83,11 +84,12 @@
                             <!-- Category Badge Overlay -->
                             <div class="absolute top-4 left-4">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md
-                                            {% if course.category == 'medical' %}bg-blue-500/90 text-white
-                                            {% elif course.category == 'admin' %}bg-purple-500/90 text-white
-                                            {% else %}bg-emerald-500/90 text-white{% endif %}">
-                                    {% if course.category == 'medical' %}🏥{% elif course.category == 'admin' %}📋{% else %}💻{% endif %}
-                                    {{ course.category|capitalize }}
+                                                {% if course.category == 'medical' %}bg-blue-500/90 text-white
+                                                {% elif course.category == 'admin' %}bg-purple-500/90 text-white
+                                                {% elif course.category == 'clinical' %}bg-rose-500/90 text-white
+                                                {% else %}bg-emerald-500/90 text-white{% endif %}">
+                                            {% if course.category == 'medical' %}🏥{% elif course.category == 'admin' %}📋{% elif course.category == 'clinical' %}🩺{% else %}💻{% endif %}
+                                            {{ course.category|capitalize }}
                                 </span>
                             </div>
                         </div>

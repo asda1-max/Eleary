@@ -291,6 +291,7 @@ class DigitalAgreement(db.Model):
     agreement_type = db.Column(db.String(50), nullable=False)  # 'confidentiality', 'ethics', 'discipline', 'emergency'
     content = db.Column(db.Text, nullable=False)  # Agreement text
     signed = db.Column(db.Boolean, default=False)
+    signature_data = db.Column(db.Text, nullable=True)  # Base64 encoded signature image
     signature_timestamp = db.Column(db.DateTime, nullable=True)
     ip_address = db.Column(db.String(50), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
