@@ -177,3 +177,47 @@ class CourseEnrollment(db.Model):
     
     def __repr__(self):
         return f'<CourseEnrollment User:{self.user_id} Course:{self.course_id}>'
+
+
+class MaterialComment(db.Model):
+    """
+    Comments on course materials for discussion.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    material_id = db.Column(db.Integer, db.ForeignKey('course_material.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    material = db.relationship('CourseMaterial', backref='comments', lazy=True)
+    author = db.relationship('User', backref='material_comments', lazy=True)
+    
+    def __repr__(self):
+        return f'<MaterialComment Material:{self.material_id} User:{self.user_id}>'
+
+
+class MaterialSubmission(db.Model):
+    """
+    Student submissions for exercise/assignment materials.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    material_id = db.Column(db.Integer, db.ForeignKey('course_material.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    file_path = db.Column(db.String(255), nullable=True)  # Path to submitted file
+    text_content = db.Column(db.Text, nullable=True)  # Text submission if applicable
+    score = db.Column(db.Integer, nullable=True)  # Score given by instructor (0-100)
+    feedback = db.Column(db.Text, nullable=True)  # Instructor feedback
+    submitted_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    graded_at = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    material = db.relationship('CourseMaterial', backref='submissions', lazy=True)
+    student = db.relationship('User', backref='material_submissions', lazy=True)
+    
+    # Unique constraint to allow only one submission per user per material
+    __table_args__ = (db.UniqueConstraint('user_id', 'material_id', name='uq_user_material_submission'),)
+    
+    def __repr__(self):
+        return f'<MaterialSubmission Material:{self.material_id} User:{self.user_id}>'

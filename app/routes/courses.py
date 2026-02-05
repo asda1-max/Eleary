@@ -1,7 +1,9 @@
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Course, CourseModule, CourseMaterial, AttendanceLog, CourseEnrollment
-from app.utils import get_course_attendance_today
+from models import db, Course, CourseModule, CourseMaterial, AttendanceLog, CourseEnrollment, MaterialComment, MaterialSubmission
+from app.utils import get_course_attendance_today, save_upload_image, allowed_file
+from werkzeug.utils import secure_filename
+import os
 
 
 def register_course_routes(app):
@@ -109,3 +111,101 @@ def register_course_routes(app):
             flash('Attendance marked successfully!', 'success')
 
         return redirect(url_for('course_detail', course_id=course_id))
+
+    @app.route('/material/<int:material_id>')
+    @login_required
+    def material_detail(material_id):
+        """Display material detail with comments and submissions."""
+        material = CourseMaterial.query.get_or_404(material_id)
+        module = material.module
+        course = module.course
+
+        # Get all comments for this material (ordered by newest first)
+        comments = MaterialComment.query.filter_by(material_id=material_id).order_by(MaterialComment.created_at.desc()).all()
+
+        # Get user's submission if exists (for assignment type)
+        user_submission = None
+        if material.type == 'assignment':
+            user_submission = MaterialSubmission.query.filter_by(
+                material_id=material_id,
+                user_id=current_user.id
+            ).first()
+
+        return render_template('material_detail.html',
+                               material=material,
+                               module=module,
+                               course=course,
+                               comments=comments,
+                               user_submission=user_submission)
+
+    @app.route('/material/<int:material_id>/comment', methods=['POST'])
+    @login_required
+    def add_comment(material_id):
+        """Add a comment to a material."""
+        material = CourseMaterial.query.get_or_404(material_id)
+        content = request.form.get('content', '').strip()
+
+        if not content:
+            flash('Comment cannot be empty.', 'danger')
+            return redirect(url_for('material_detail', material_id=material_id))
+
+        comment = MaterialComment(
+            material_id=material_id,
+            user_id=current_user.id,
+            content=content
+        )
+        db.session.add(comment)
+        db.session.commit()
+
+        flash('Comment posted successfully!', 'success')
+        return redirect(url_for('material_detail', material_id=material_id))
+
+    @app.route('/material/<int:material_id>/submit', methods=['POST'])
+    @login_required
+    def submit_material(material_id):
+        """Submit assignment for a material."""
+        material = CourseMaterial.query.get_or_404(material_id)
+
+        # Check if material is assignment type
+        if material.type != 'assignment':
+            flash('This material does not accept submissions.', 'danger')
+            return redirect(url_for('material_detail', material_id=material_id))
+
+        # Check if already submitted
+        existing_submission = MaterialSubmission.query.filter_by(
+            material_id=material_id,
+            user_id=current_user.id
+        ).first()
+
+        if existing_submission:
+            flash('You have already submitted this assignment.', 'info')
+            return redirect(url_for('material_detail', material_id=material_id))
+
+        # Get form data
+        text_content = request.form.get('text_content', '').strip()
+        file_path = None
+
+        # Handle file upload if provided
+        if 'submission_file' in request.files:
+            file = request.files['submission_file']
+            if file and file.filename:
+                # Save the file
+                file_path = save_upload_image(file, subfolder='submissions')
+
+        # At least one of text or file must be provided
+        if not text_content and not file_path:
+            flash('Please provide either a file or text submission.', 'danger')
+            return redirect(url_for('material_detail', material_id=material_id))
+
+        # Create submission
+        submission = MaterialSubmission(
+            material_id=material_id,
+            user_id=current_user.id,
+            file_path=file_path,
+            text_content=text_content if text_content else None
+        )
+        db.session.add(submission)
+        db.session.commit()
+
+        flash('Assignment submitted successfully!', 'success')
+        return redirect(url_for('material_detail', material_id=material_id))
