@@ -21,32 +21,32 @@
                 </div>
             </div>
             <h1 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">E-Leary</h1>
-            <p class="text-slate-600 dark:text-slate-400 font-medium">Hospital E-Learning & Management System</p>
+            <p class="text-slate-600 dark:text-slate-400 font-medium" data-i18n="login_tagline">Hospital E-Learning & Management System</p>
         </div>
 
         <!-- Login Form -->
         <form method="POST" class="space-y-5">
             <!-- Username -->
             <div>
-                <label for="username" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Username</label>
+                <label for="username" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" data-i18n="login_username">Username</label>
                 <div class="relative">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 110 12 6 6 0 010-12zm0 14c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/></svg>
-                    <input type="text" id="username" name="username" required 
+                          <input type="text" id="username" name="username" required 
                            class="w-full pl-12 pr-4 py-3.5 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all bg-white/80 dark:bg-slate-700/50 dark:text-white"
-                           placeholder="Enter your username">
+                              placeholder="Enter your username" data-i18n-placeholder="login_username_placeholder">
                 </div>
             </div>
 
             <!-- Password -->
             <div>
-                <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Password</label>
+                <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" data-i18n="login_password">Password</label>
                 <div class="relative">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
-                    <input type="password" id="password" name="password" required 
+                          <input type="password" id="password" name="password" required 
                            class="w-full pl-12 pr-4 py-3.5 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all bg-white/80 dark:bg-slate-700/50 dark:text-white"
-                           placeholder="Enter your password">
+                              placeholder="Enter your password" data-i18n-placeholder="login_password_placeholder">
                 </div>
             </div>
 
@@ -55,7 +55,7 @@
                 <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                 </svg>
-                <span>Sign In</span>
+                <span data-i18n="login_sign_in">Sign In</span>
             </button>
         </form>
 
@@ -65,12 +65,12 @@
                 <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-                <span class="px-4 bg-white dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 rounded-full">Don't have an account?</span>
+                <span class="px-4 bg-white dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 rounded-full" data-i18n="login_no_account">Don't have an account?</span>
             </div>
         </div>
 
         <!-- Register Link -->
-        <a href="{{ url_for('register') }}" class="w-full block text-center bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-500 text-slate-800 dark:text-white font-semibold py-3.5 rounded-2xl transition-all duration-300 border border-slate-200 dark:border-slate-600 shadow-sm">
+        <a href="{{ url_for('register') }}" class="w-full block text-center bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-500 text-slate-800 dark:text-white font-semibold py-3.5 rounded-2xl transition-all duration-300 border border-slate-200 dark:border-slate-600 shadow-sm" data-i18n="login_create_account">
             Create Account
         </a>
 
@@ -78,19 +78,52 @@
         <div class="mt-8 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 border border-teal-200 dark:border-teal-800/50 rounded-2xl p-5 shadow-sm">
             <div class="flex items-center gap-2 mb-3">
                 <svg class="w-5 h-5 text-teal-600 dark:text-teal-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                <span class="text-sm font-bold text-teal-700 dark:text-teal-300">Demo Credentials</span>
+                <span class="text-sm font-bold text-teal-700 dark:text-teal-300" data-i18n="login_demo_credentials">Demo Credentials</span>
             </div>
             <div class="space-y-2">
                 <p class="text-sm text-teal-700 dark:text-teal-400 flex items-center gap-2">
-                    <span class="w-14 text-teal-600 dark:text-teal-400 font-semibold text-xs">Admin:</span>
+                    <span class="w-14 text-teal-600 dark:text-teal-400 font-semibold text-xs" data-i18n="login_demo_admin">Admin:</span>
                     <code class="bg-white/60 dark:bg-slate-900/60 px-2.5 py-1.5 rounded-lg text-xs font-mono backdrop-blur-sm">admin / admin123</code>
                 </p>
                 <p class="text-sm text-teal-700 dark:text-teal-400 flex items-center gap-2">
-                    <span class="w-14 text-teal-600 dark:text-teal-400 font-semibold text-xs">User:</span>
+                    <span class="w-14 text-teal-600 dark:text-teal-400 font-semibold text-xs" data-i18n="login_demo_user">User:</span>
                     <code class="bg-white/60 dark:bg-slate-900/60 px-2.5 py-1.5 rounded-lg text-xs font-mono backdrop-blur-sm">dr_ahmad / password123</code>
                 </p>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.PAGE_TRANSLATIONS = {
+        en: {
+            login_tagline: 'Hospital E-Learning & Management System',
+            login_username: 'Username',
+            login_username_placeholder: 'Enter your username',
+            login_password: 'Password',
+            login_password_placeholder: 'Enter your password',
+            login_sign_in: 'Sign In',
+            login_no_account: "Don't have an account?",
+            login_create_account: 'Create Account',
+            login_demo_credentials: 'Demo Credentials',
+            login_demo_admin: 'Admin:',
+            login_demo_user: 'User:'
+        },
+        id: {
+            login_tagline: 'Sistem E-Learning & Manajemen Rumah Sakit',
+            login_username: 'Nama Pengguna',
+            login_username_placeholder: 'Masukkan nama pengguna',
+            login_password: 'Kata Sandi',
+            login_password_placeholder: 'Masukkan kata sandi',
+            login_sign_in: 'Masuk',
+            login_no_account: 'Belum punya akun?',
+            login_create_account: 'Buat Akun',
+            login_demo_credentials: 'Kredensial Demo',
+            login_demo_admin: 'Admin:',
+            login_demo_user: 'Pengguna:'
+        }
+    };
+</script>
 {% endblock %}

@@ -178,6 +178,10 @@ def register_auth_routes(app):
             flash('Invalid role request.', 'danger')
             return redirect(url_for('account_settings'))
 
+        if current_user.role == 'admin' and role == 'pemateri':
+            flash('Admins cannot request instructor access.', 'danger')
+            return redirect(url_for('account_settings'))
+
         if current_user.role == role:
             flash('You already have this role.', 'info')
             return redirect(url_for('account_settings'))
@@ -189,4 +193,23 @@ def register_auth_routes(app):
         current_user.pending_role = role
         db.session.commit()
         flash('Role request submitted for admin approval.', 'info')
+        return redirect(url_for('account_settings'))
+
+    @app.route('/settings/revoke_role', methods=['POST'])
+    @login_required
+    def revoke_role():
+        """Allow user to revoke their own admin or instructor role."""
+        role = request.form.get('role')
+        if role not in {'pemateri', 'admin'}:
+            flash('Invalid role revoke request.', 'danger')
+            return redirect(url_for('account_settings'))
+
+        if current_user.role != role:
+            flash('You do not have this role.', 'info')
+            return redirect(url_for('account_settings'))
+
+        current_user.role = 'user'
+        current_user.pending_role = None
+        db.session.commit()
+        flash('Your access has been revoked.', 'success')
         return redirect(url_for('account_settings'))

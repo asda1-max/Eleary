@@ -1,5 +1,6 @@
 from models import (db, User, Course, CourseModule, CourseMaterial, LibraryBook,
-                    ElearningModule, CompetencyChecklist)
+                    ElearningModule, CompetencyChecklist, ClinicalConfig)
+import json
 
 
 def init_db(app):
@@ -25,6 +26,33 @@ def init_db(app):
         user1.set_password('password123')
 
         db.session.add_all([admin, pemateri1, user1])
+        db.session.commit()
+
+        # Create default clinical configuration
+        default_config = ClinicalConfig(
+            documents_json=json.dumps([
+                {'type': 'referral', 'label': 'Referral Letter', 'requires_expiration': True},
+                {'type': 'health', 'label': 'Health Letter', 'requires_expiration': True},
+                {'type': 'insurance', 'label': 'Insurance', 'requires_expiration': True},
+                {'type': 'integrity_pact', 'label': 'Integrity Pact', 'requires_expiration': False}
+            ]),
+            agreements_json=json.dumps([
+                {'type': 'confidentiality', 'title': 'Confidentiality', 'text': 'I hereby agree to maintain strict patient confidentiality and comply with all data protection regulations...'},
+                {'type': 'ethics', 'title': 'Ethics', 'text': 'I commit to upholding the highest standards of professional ethics in all clinical interactions...'},
+                {'type': 'discipline', 'title': 'Discipline', 'text': 'I acknowledge and accept the disciplinary policies and sanctions outlined by the hospital...'},
+                {'type': 'emergency', 'title': 'Emergency Procedures', 'text': 'I understand the emergency procedures and agree to follow all safety protocols...'}
+            ]),
+            required_course_ids_json=json.dumps([]),
+            pretest_questions_json=json.dumps([
+                {'id': 1, 'question': 'What are the 6 patient safety goals?', 'options': ['A', 'B', 'C', 'D']},
+                {'id': 2, 'question': 'What does K3RS stand for?', 'options': ['A', 'B', 'C', 'D']}
+            ]),
+            posttest_questions_json=json.dumps([
+                {'id': 1, 'question': 'How do you report a patient safety incident?', 'options': ['A', 'B', 'C', 'D']},
+                {'id': 2, 'question': 'Which steps are required for infection control?', 'options': ['A', 'B', 'C', 'D']}
+            ])
+        )
+        db.session.add(default_config)
         db.session.commit()
 
         # Create sample courses with instructor_id

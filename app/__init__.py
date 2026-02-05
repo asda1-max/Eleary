@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from models import (db, User, Course, CourseModule, CourseMaterial, LibraryBook, AttendanceLog, CourseEnrollment, News,
-                    StudentProfile, LegalDocument, DigitalAgreement, ElearningModule, ElearningProgress,
+                    StudentProfile, LegalDocument, DigitalAgreement, ElearningModule, ElearningProgress, ClinicalConfig,
                     PreClinicalAssessment, LogbookEntry, CompetencyChecklist, CompetencyProgress, DailyJournal,
                     WeeklyAssessment, FinalExam, Evaluation360, ClinicalCertificate, IncidentReport,
                     StudentFeedback, AlumniProfile, SupervisorValidationPIN)

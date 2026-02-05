@@ -106,6 +106,8 @@
                         <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">Approved</span>
                     {% elif current_user.pending_role == 'pemateri' %}
                         <span class="text-sm font-semibold text-amber-600 dark:text-amber-400">Pending Approval</span>
+                    {% elif current_user.role == 'admin' %}
+                        <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">Admins cannot request instructor access</span>
                     {% else %}
                         <form method="POST" action="{{ url_for('request_role') }}">
                             <input type="hidden" name="role" value="pemateri" />
@@ -134,8 +136,68 @@
                         </form>
                     {% endif %}
                 </div>
+
+                {% if current_user.role in ['admin', 'pemateri'] %}
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                    <div>
+                        <p class="font-semibold text-red-700 dark:text-red-300">Revoke Access</p>
+                        <p class="text-sm text-red-600 dark:text-red-400">You can revoke your own role with confirmation</p>
+                    </div>
+                    {% if current_user.role == 'admin' %}
+                    <button type="button" onclick="openRevokeModal('admin')" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-2xl shadow-lg shadow-red-500/30 transition-all transform hover:scale-105 active:scale-95">
+                        Revoke Admin Access
+                    </button>
+                    {% elif current_user.role == 'pemateri' %}
+                    <button type="button" onclick="openRevokeModal('pemateri')" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-2xl shadow-lg shadow-red-500/30 transition-all transform hover:scale-105 active:scale-95">
+                        Revoke Instructor Access
+                    </button>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+{% if current_user.role in ['admin', 'pemateri'] %}
+<div id="revoke-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Confirm Revoke</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Are you sure you want to revoke your access? This action cannot be undone.</p>
+        <form id="revoke-form" method="POST" action="{{ url_for('revoke_role') }}">
+            <input type="hidden" name="role" id="revoke-role" value="" />
+            <div class="flex gap-3">
+                <button type="button" onclick="closeRevokeModal()" class="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">
+                    Yes, Revoke
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function openRevokeModal(role) {
+        const modal = document.getElementById('revoke-modal');
+        const roleInput = document.getElementById('revoke-role');
+        if (modal && roleInput) {
+            roleInput.value = role;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+
+    function closeRevokeModal() {
+        const modal = document.getElementById('revoke-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+</script>
 {% endblock %}

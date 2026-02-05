@@ -345,6 +345,23 @@ class ElearningProgress(db.Model):
         return f'<ElearningProgress Student:{self.student_id} Module:{self.module_id}>'
 
 
+class ClinicalConfig(db.Model):
+    """
+    Clinical module configuration editable by admin.
+    Stores documents, agreements, required courses, and assessment questions.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    documents_json = db.Column(db.Text, nullable=True)
+    agreements_json = db.Column(db.Text, nullable=True)
+    required_course_ids_json = db.Column(db.Text, nullable=True)
+    pretest_questions_json = db.Column(db.Text, nullable=True)
+    posttest_questions_json = db.Column(db.Text, nullable=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<ClinicalConfig {self.id}>'
+
+
 class PreClinicalAssessment(db.Model):
     """
     Pre-test and post-test for e-learning modules.

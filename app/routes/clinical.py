@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from models import (db, User, StudentProfile, LegalDocument, DigitalAgreement, 
+from models import (db, User, StudentProfile, LegalDocument, DigitalAgreement, ClinicalConfig,
                     Course, CourseEnrollment, PreClinicalAssessment,
                     LogbookEntry, CompetencyChecklist, CompetencyProgress, DailyJournal,
                     WeeklyAssessment, FinalExam, Evaluation360, ClinicalCertificate,
@@ -10,6 +10,51 @@ from werkzeug.utils import secure_filename
 from datetime import datetime, date, timedelta
 import os
 import json
+
+
+def get_clinical_config():
+    config = ClinicalConfig.query.first()
+    if not config:
+        config = ClinicalConfig(
+            documents_json=json.dumps([
+                {'type': 'referral', 'label': 'Referral Letter', 'requires_expiration': True},
+                {'type': 'health', 'label': 'Health Letter', 'requires_expiration': True},
+                {'type': 'insurance', 'label': 'Insurance', 'requires_expiration': True},
+                {'type': 'integrity_pact', 'label': 'Integrity Pact', 'requires_expiration': False}
+            ]),
+            agreements_json=json.dumps([
+                {'type': 'confidentiality', 'title': 'Confidentiality', 'text': 'I hereby agree to maintain strict patient confidentiality and comply with all data protection regulations...'},
+                {'type': 'ethics', 'title': 'Ethics', 'text': 'I commit to upholding the highest standards of professional ethics in all clinical interactions...'},
+                {'type': 'discipline', 'title': 'Discipline', 'text': 'I acknowledge and accept the disciplinary policies and sanctions outlined by the hospital...'},
+                {'type': 'emergency', 'title': 'Emergency Procedures', 'text': 'I understand the emergency procedures and agree to follow all safety protocols...'}
+            ]),
+            required_course_ids_json=json.dumps([]),
+            pretest_questions_json=json.dumps([
+                {'id': 1, 'question': 'What are the 6 patient safety goals?', 'options': ['A', 'B', 'C', 'D']},
+                {'id': 2, 'question': 'What does K3RS stand for?', 'options': ['A', 'B', 'C', 'D']}
+            ]),
+            posttest_questions_json=json.dumps([
+                {'id': 1, 'question': 'How do you report a patient safety incident?', 'options': ['A', 'B', 'C', 'D']},
+                {'id': 2, 'question': 'Which steps are required for infection control?', 'options': ['A', 'B', 'C', 'D']}
+            ])
+        )
+        db.session.add(config)
+        db.session.commit()
+
+    documents = json.loads(config.documents_json or '[]')
+    agreements = json.loads(config.agreements_json or '[]')
+    required_course_ids = json.loads(config.required_course_ids_json or '[]')
+    pretest_questions = json.loads(config.pretest_questions_json or '[]')
+    posttest_questions = json.loads(config.posttest_questions_json or '[]')
+
+    return {
+        'config': config,
+        'documents': documents,
+        'agreements': agreements,
+        'required_course_ids': required_course_ids,
+        'pretest_questions': pretest_questions,
+        'posttest_questions': posttest_questions
+    }
 
 
 def register_clinical_routes(app):
@@ -26,21 +71,33 @@ def register_clinical_routes(app):
             flash('Please complete your student profile first.', 'warning')
             return redirect(url_for('clinical_student_registration'))
         
+        clinical_config = get_clinical_config()
+        required_doc_types = {d['type'] for d in clinical_config['documents']}
+        required_agreement_types = {a['type'] for a in clinical_config['agreements']}
+        required_course_ids = clinical_config['required_course_ids']
+
         # Get progress status
         legal_docs = LegalDocument.query.filter_by(student_id=profile.id).all()
         agreements = DigitalAgreement.query.filter_by(student_id=profile.id).all()
-        elearning_courses = Course.query.filter_by(category='clinical').all()
-        enrolled_count = CourseEnrollment.query.join(Course).filter(
-            CourseEnrollment.user_id == current_user.id,
-            Course.category == 'clinical'
-        ).count()
+        if required_course_ids:
+            elearning_courses = Course.query.filter(Course.id.in_(required_course_ids)).all()
+        else:
+            elearning_courses = Course.query.filter_by(category='clinical').all()
+
+        if elearning_courses:
+            enrolled_count = CourseEnrollment.query.filter(
+                CourseEnrollment.user_id == current_user.id,
+                CourseEnrollment.course_id.in_([c.id for c in elearning_courses])
+            ).count()
+        else:
+            enrolled_count = 0
         assessments = PreClinicalAssessment.query.filter_by(student_id=profile.id).all()
         
         # Calculate completion status
-        docs_uploaded = len([d for d in legal_docs if d.status in ['verified', 'pending']])
-        docs_required = 4  # referral, health, insurance, integrity_pact
-        agreements_signed = len([a for a in agreements if a.signed])
-        agreements_required = 4  # confidentiality, ethics, discipline, emergency
+        docs_uploaded = len([d for d in legal_docs if d.status in ['verified', 'pending'] and d.document_type in required_doc_types])
+        docs_required = len(required_doc_types)
+        agreements_signed = len([a for a in agreements if a.signed and a.agreement_type in required_agreement_types])
+        agreements_required = len(required_agreement_types)
         modules_completed = enrolled_count
         modules_required = len(elearning_courses)
         posttest_passed = any(a.assessment_type == 'posttest' and a.passed for a in assessments)
@@ -54,7 +111,8 @@ def register_clinical_routes(app):
                              profile=profile,
                              legal_docs=legal_docs,
                              agreements=agreements,
-                             elearning_courses=elearning_courses,
+                     agreement_config=clinical_config['agreements'],
+                     elearning_courses=elearning_courses,
                              assessments=assessments,
                              docs_uploaded=docs_uploaded,
                              docs_required=docs_required,
@@ -118,9 +176,16 @@ def register_clinical_routes(app):
             flash('Please complete your student profile first.', 'warning')
             return redirect(url_for('clinical_student_registration'))
         
+        clinical_config = get_clinical_config()
+        allowed_doc_types = {d['type'] for d in clinical_config['documents']}
+
         if request.method == 'POST':
             document_type = request.form.get('document_type')
             expiration_date = request.form.get('expiration_date')
+
+            if document_type not in allowed_doc_types:
+                flash('Invalid document type.', 'danger')
+                return redirect(request.url)
             
             if 'document_file' not in request.files:
                 flash('No file uploaded.', 'danger')
@@ -162,16 +227,19 @@ def register_clinical_routes(app):
                 db.session.commit()
                 flash(f'{document_type.replace("_", " ").title()} uploaded successfully!', 'success')
                 
-                # Check if all documents are uploaded
-                docs_count = LegalDocument.query.filter_by(student_id=profile.id).count()
-                if docs_count >= 4:
+                # Check if all required documents are uploaded
+                uploaded_types = {d.document_type for d in LegalDocument.query.filter_by(student_id=profile.id).all() if d.status in ['verified', 'pending']}
+                if allowed_doc_types.issubset(uploaded_types):
                     profile.documents_verified = True
                     db.session.commit()
                 
                 return redirect(url_for('clinical_onboarding'))
         
         existing_docs = LegalDocument.query.filter_by(student_id=profile.id).all()
-        return render_template('clinical/documents_upload.html', profile=profile, existing_docs=existing_docs)
+        return render_template('clinical/documents_upload.html',
+                     profile=profile,
+                     existing_docs=existing_docs,
+                     required_documents=clinical_config['documents'])
     
     @app.route('/clinical/agreements/<agreement_type>', methods=['GET', 'POST'])
     @login_required
@@ -182,13 +250,13 @@ def register_clinical_routes(app):
             flash('Please complete your student profile first.', 'warning')
             return redirect(url_for('clinical_student_registration'))
         
-        # Agreement content templates
-        agreement_texts = {
-            'confidentiality': "I hereby agree to maintain strict patient confidentiality and comply with all data protection regulations...",
-            'ethics': "I commit to upholding the highest standards of professional ethics in all clinical interactions...",
-            'discipline': "I acknowledge and accept the disciplinary policies and sanctions outlined by the hospital...",
-            'emergency': "I understand the emergency procedures and agree to follow all safety protocols..."
-        }
+        clinical_config = get_clinical_config()
+        agreement_texts = {a['type']: a.get('text', '') for a in clinical_config['agreements']}
+        agreement_titles = {a['type']: a.get('title', a['type'].replace('_', ' ').title()) for a in clinical_config['agreements']}
+
+        if agreement_type not in agreement_texts:
+            flash('Agreement not found.', 'danger')
+            return redirect(url_for('clinical_onboarding'))
         
         existing_agreement = DigitalAgreement.query.filter_by(
             student_id=profile.id,
@@ -238,6 +306,7 @@ def register_clinical_routes(app):
         return render_template('clinical/agreement.html',
                              profile=profile,
                              agreement_type=agreement_type,
+                     agreement_title=agreement_titles.get(agreement_type),
                              agreement_text=agreement_texts.get(agreement_type, ''),
                              existing_agreement=existing_agreement)
     
@@ -250,7 +319,13 @@ def register_clinical_routes(app):
             flash('Please complete your student profile first.', 'warning')
             return redirect(url_for('clinical_student_registration'))
 
-        courses = Course.query.filter_by(category='clinical').order_by(Course.created_at.desc()).all()
+        clinical_config = get_clinical_config()
+        required_course_ids = clinical_config['required_course_ids']
+
+        if required_course_ids:
+            courses = Course.query.filter(Course.id.in_(required_course_ids)).order_by(Course.created_at.desc()).all()
+        else:
+            courses = Course.query.filter_by(category='clinical').order_by(Course.created_at.desc()).all()
         enrolled_course_ids = {
             e.course_id for e in CourseEnrollment.query.filter_by(user_id=current_user.id).all()
         }
@@ -276,11 +351,20 @@ def register_clinical_routes(app):
             flash('Please complete your student profile first.', 'warning')
             return redirect(url_for('clinical_student_registration'))
 
-        total_clinical = Course.query.filter_by(category='clinical').count()
-        enrolled_clinical = CourseEnrollment.query.join(Course).filter(
-            CourseEnrollment.user_id == current_user.id,
-            Course.category == 'clinical'
-        ).count()
+        clinical_config = get_clinical_config()
+        required_course_ids = clinical_config['required_course_ids']
+        if required_course_ids:
+            total_clinical = Course.query.filter(Course.id.in_(required_course_ids)).count()
+            enrolled_clinical = CourseEnrollment.query.filter(
+                CourseEnrollment.user_id == current_user.id,
+                CourseEnrollment.course_id.in_(required_course_ids)
+            ).count()
+        else:
+            total_clinical = Course.query.filter_by(category='clinical').count()
+            enrolled_clinical = CourseEnrollment.query.join(Course).filter(
+                CourseEnrollment.user_id == current_user.id,
+                Course.category == 'clinical'
+            ).count()
         profile.elearning_completed = total_clinical > 0 and enrolled_clinical >= total_clinical
         db.session.commit()
         
@@ -334,12 +418,16 @@ def register_clinical_routes(app):
             
             return redirect(url_for('clinical_onboarding'))
         
-        # Sample questions (in real app, these would come from a question bank)
-        sample_questions = [
-            {'id': 1, 'question': 'What are the 6 patient safety goals?', 'options': ['A', 'B', 'C', 'D']},
-            {'id': 2, 'question': 'What does K3RS stand for?', 'options': ['A', 'B', 'C', 'D']},
-            # Add more questions...
-        ]
+        clinical_config = get_clinical_config()
+        if assessment_type == 'pretest':
+            sample_questions = clinical_config['pretest_questions']
+        else:
+            sample_questions = clinical_config['posttest_questions']
+
+        if not sample_questions:
+            sample_questions = [
+                {'id': 1, 'question': 'No questions configured yet.', 'options': ['A', 'B', 'C', 'D']}
+            ]
         
         return render_template('clinical/assessment.html',
                              profile=profile,
