@@ -140,9 +140,11 @@ Eleary/
 
 - **Backend**: Python Flask
 - **Database**: SQLite3 with SQLAlchemy ORM
-- **Frontend**: HTML5 + Tailwind CSS (CDN)
+- **Frontend**: HTML5 + Tailwind CSS (CDN) + Vanilla JS
+- **Templating**: Jinja2
 - **Authentication**: Flask-Login
 - **Security**: Werkzeug for password hashing
+- **Sanitization**: bleach for rich text cleanup
 
 ## Installation & Setup
 
@@ -395,9 +397,9 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
    - Session scheduling
 
 7. **Mobile App**
-   - React Native/Flutter app
-   - Offline learning support
-   - Push notifications
+   - Mobile-first responsive enhancements to the existing web UI
+   - Offline-friendly patterns for static resources
+   - Notification UX within the web app
 
 8. **Two-Factor Authentication**
    - Optional 2FA for security

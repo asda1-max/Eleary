@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Agreement - E-Leary{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 py-12">
+    <div class="max-w-3xl mx-auto px-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-200 dark:border-slate-700">
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">{{ agreement_title or (agreement_type.replace('_', ' ').title()) }} Agreement</h1>
+            
+            {% if existing_agreement and existing_agreement.signed %}
+            <div class="p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl mb-6">
+                <p class="text-green-800 dark:text-green-200 font-semibold">✓ You have already signed this agreement on {{ existing_agreement.signature_timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+            </div>
+            {% else %}
+            
+            <div class="prose dark:prose-invert max-w-none mb-8 p-6 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 max-h-96 overflow-y-auto">
+                <p class="text-slate-700 dark:text-slate-300 leading-relaxed">{{ agreement_text }}</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('clinical_agreements', agreement_type=agreement_type) }}" id="agreement-form">
+                <div class="mb-6">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" required class="mt-1 w-5 h-5 text-teal-600 rounded">
+                        <span class="text-slate-700 dark:text-slate-300">I have read and agree to the terms outlined in this agreement.</span>
+                    </label>
+                </div>
+
+                <!-- E-Signature Section -->
+                <div class="mb-6 p-6 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Your Electronic Signature *</label>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-4">Please sign in the box below to electronically sign this agreement.</p>
+                    
+                    <div class="border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 overflow-hidden">
+                        <canvas 
+                            id="signature-canvas" 
+                            class="block w-full" 
+                            style="touch-action: none; cursor: crosshair;">
+                        </canvas>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-3">
+                        <button type="button" id="clear-signature" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-lg transition-all text-sm">
+                            Clear Signature
+                        </button>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center">Use mouse or touch to sign</p>
+                    </div>
+                    
+                    <input type="hidden" id="signature-data" name="signature_data" required>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold py-4 rounded-lg transition-all">
+                        Sign Agreement
+                    </button>
+                    <a href="{{ url_for('clinical_onboarding') }}" class="flex-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold py-4 rounded-lg transition-all text-center">
+                        Back
+                    </a>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const canvas = document.getElementById('signature-canvas');
+    const signatureData = document.getElementById('signature-data');
+    const clearButton = document.getElementById('clear-signature');
+    const form = document.getElementById('agreement-form');
+
+    if (canvas) {
+        // Set canvas size to fit its container
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Initialize Signature Pad
+        const signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: 'rgb(0, 0, 0)',
+            dotSize: 2,
+            minWidth: 0.5,
+            maxWidth: 2.5,
+            throttle: 16
+        });
+
+        // Clear button handler
+        clearButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            signaturePad.clear();
+            signatureData.value = '';
+        });
+
+        // Form submission handler
+        form.addEventListener('submit', (e) => {
+            if (signaturePad.isEmpty()) {
+                e.preventDefault();
+                alert('Please sign the agreement before submitting.');
+                return;
+            }
+            // Convert signature to base64
+            signatureData.value = signaturePad.toDataURL('image/png');
+        });
+
+        // Handle dark mode styles
+        const isDark = document.documentElement.classList.contains('dark');
+        if (isDark) {
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+</script>
+{% endblock %}

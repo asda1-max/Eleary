@@ -355,4 +355,4 @@ The `init_db()` function in `app.py` automatically:
 3. **Analytics**: Add performance tracking and statistics
 4. **API**: Add REST API endpoints
 5. **Search**: Add full-text search capabilities
-6. **Caching**: Implement Redis caching for frequently accessed data
+6. **Caching**: Optional in-app caching without external services

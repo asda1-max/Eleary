@@ -2,7 +2,7 @@ import os
 from flask import render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
-from models import db, User, Course, CourseEnrollment, News
+from models import db, User, Course, CourseEnrollment, News, StudentProfile
 
 
 def register_auth_routes(app):
@@ -14,7 +14,13 @@ def register_auth_routes(app):
             course_total = Course.query.count()
             # Get 3 latest news for carousel
             latest_news = News.query.order_by(News.created_at.desc()).limit(3).all()
-            return render_template('dashboard.html', enrolled_courses=enrolled_courses, course_total=course_total, latest_news=latest_news)
+            # Get student profile if exists
+            student_profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+            return render_template('dashboard.html', 
+                                 enrolled_courses=enrolled_courses, 
+                                 course_total=course_total, 
+                                 latest_news=latest_news,
+                                 student_profile=student_profile)
         return redirect(url_for('login'))
 
     @app.route('/register', methods=['GET', 'POST'])
@@ -172,6 +178,10 @@ def register_auth_routes(app):
             flash('Invalid role request.', 'danger')
             return redirect(url_for('account_settings'))
 
+        if current_user.role == 'admin' and role == 'pemateri':
+            flash('Admins cannot request instructor access.', 'danger')
+            return redirect(url_for('account_settings'))
+
         if current_user.role == role:
             flash('You already have this role.', 'info')
             return redirect(url_for('account_settings'))
@@ -183,4 +193,23 @@ def register_auth_routes(app):
         current_user.pending_role = role
         db.session.commit()
         flash('Role request submitted for admin approval.', 'info')
+        return redirect(url_for('account_settings'))
+
+    @app.route('/settings/revoke_role', methods=['POST'])
+    @login_required
+    def revoke_role():
+        """Allow user to revoke their own admin or instructor role."""
+        role = request.form.get('role')
+        if role not in {'pemateri', 'admin'}:
+            flash('Invalid role revoke request.', 'danger')
+            return redirect(url_for('account_settings'))
+
+        if current_user.role != role:
+            flash('You do not have this role.', 'info')
+            return redirect(url_for('account_settings'))
+
+        current_user.role = 'user'
+        current_user.pending_role = None
+        db.session.commit()
+        flash('Your access has been revoked.', 'success')
         return redirect(url_for('account_settings'))

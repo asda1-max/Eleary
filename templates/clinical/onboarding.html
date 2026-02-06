@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+
+{% block title %}Clinical Onboarding - E-Leary{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-teal-50 via-cyan-50 to-sky-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Language Toggle -->
+        <div class="flex justify-end mb-4">
+            <div class="inline-flex items-center gap-3 bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 shadow-sm">
+                <span class="text-sm font-semibold text-slate-700 dark:text-slate-300" data-i18n="label_language">Language</span>
+                <select id="language-select" class="text-sm font-semibold text-slate-700 dark:text-slate-200 bg-transparent border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    <option value="en" data-i18n="option_english">English</option>
+                    <option value="id" data-i18n="option_indonesia">Indonesia</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="mb-8 text-center animate-fade-in">
+            <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white mb-3">
+                <span class="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent" data-i18n="title_onboarding">Pre-Clinical Onboarding</span>
+            </h1>
+            <p class="text-lg text-slate-600 dark:text-slate-300" data-i18n="subtitle_onboarding">Complete all requirements before starting clinical practice</p>
+        </div>
+
+        <!-- Progress Overview Card -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 mb-8 border border-slate-200 dark:border-slate-700">
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6" data-i18n="heading_progress">Onboarding Progress</h2>
+            
+            <div class="grid md:grid-cols-4 gap-6">
+                <!-- Documents Status -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <svg class="w-10 h-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        {% if profile.documents_verified %}
+                        <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1" data-i18n="label_legal_documents">Legal Documents</p>
+                    <p class="text-2xl font-bold text-blue-900 dark:text-blue-100">{{ docs_uploaded }} / {{ docs_required }}</p>
+                </div>
+
+                <!-- Agreements Status -->
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <svg class="w-10 h-10 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {% if profile.agreements_signed %}
+                        <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm font-medium text-purple-700 dark:text-purple-300 mb-1" data-i18n="label_agreements_signed">Agreements Signed</p>
+                    <p class="text-2xl font-bold text-purple-900 dark:text-purple-100">{{ agreements_signed }} / {{ agreements_required }}</p>
+                </div>
+
+                <!-- E-Learning Status -->
+                <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 rounded-xl p-6 border border-emerald-200 dark:border-emerald-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <svg class="w-10 h-10 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        {% if profile.elearning_completed %}
+                        <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1" data-i18n="label_elearning_modules">E-Learning Modules</p>
+                    <p class="text-2xl font-bold text-emerald-900 dark:text-emerald-100">{{ modules_completed }} / {{ modules_required }}</p>
+                </div>
+
+                <!-- Assessment Status -->
+                <div class="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 rounded-xl p-6 border border-amber-200 dark:border-amber-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                        </svg>
+                        {% if posttest_passed %}
+                        <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1" data-i18n="label_post_test">Post-Test</p>
+                    <p class="text-2xl font-bold text-amber-900 dark:text-amber-100">
+                        {% if posttest_passed %}
+                        <span data-i18n="status_passed">Passed</span>
+                        {% else %}
+                        <span data-i18n="status_pending">Pending</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Overall Progress Bar -->
+            {% set docs_score = (docs_uploaded / docs_required * 25) if docs_required > 0 else 0 %}
+            {% set agreements_score = (agreements_signed / agreements_required * 25) if agreements_required > 0 else 0 %}
+            {% set elearning_score = (modules_completed / modules_required * 25) if modules_required > 0 else 0 %}
+            {% set completion_percentage = (docs_score + agreements_score + elearning_score + (25 if posttest_passed else 0)) | int %}
+            <div class="mt-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300" data-i18n="label_overall_completion">Overall Completion</span>
+                    <span class="text-sm font-bold text-teal-600 dark:text-teal-400">{{ completion_percentage }}%</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                    <div class="bg-gradient-to-r from-teal-500 to-cyan-500 h-3 rounded-full transition-all duration-500" style="width: {{ completion_percentage }}%"></div>
+                </div>
+            </div>
+
+            {% if profile.onboarding_complete %}
+            <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-3">
+                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <p class="text-green-800 dark:text-green-200 font-semibold" data-i18n="message_completed">✨ Congratulations! You have completed all pre-clinical requirements and are ready to start clinical practice!</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Steps List -->
+        <div class="space-y-6">
+            <!-- Step 1: Legal Documents -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                        <span class="text-xl font-bold text-blue-600 dark:text-blue-400">1</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2" data-i18n="step1_title">Upload Legal Documents</h3>
+                        <p class="text-slate-600 dark:text-slate-300 mb-4" data-i18n="step1_desc">Upload required documents: referral letter, health letter, insurance, and integrity pact.</p>
+                        <a href="{{ url_for('clinical_documents_upload') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <span data-i18n="step1_action">Upload Documents</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Digital Agreements -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                        <span class="text-xl font-bold text-purple-600 dark:text-purple-400">2</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2" data-i18n="step2_title">Sign Digital Agreements</h3>
+                        <p class="text-slate-600 dark:text-slate-300 mb-4" data-i18n="step2_desc">Review and sign: patient confidentiality, professional ethics, discipline, and emergency procedures.</p>
+                        <div class="grid md:grid-cols-2 gap-3">
+                            {% for agreement in agreement_config %}
+                            <a href="{{ url_for('clinical_agreements', agreement_type=agreement.type) }}" class="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium px-4 py-2 rounded-lg transition-colors border border-purple-200 dark:border-purple-800">
+                                {% if agreements | selectattr('agreement_type', 'equalto', agreement.type) | selectattr('signed', 'equalto', True) | list %}
+                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                {% endif %}
+                                <span>{{ agreement.title }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: E-Learning -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
+                        <span class="text-xl font-bold text-emerald-600 dark:text-emerald-400">3</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2" data-i18n="step3_title">Complete E-Learning Modules</h3>
+                        <p class="text-slate-600 dark:text-slate-300 mb-4" data-i18n="step3_desc">Complete mandatory training on hospital culture, patient safety, infection control, and more.</p>
+                        <a href="{{ url_for('clinical_elearning') }}" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                            <span data-i18n="step3_action">View Modules</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Assessment -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+                        <span class="text-xl font-bold text-amber-600 dark:text-amber-400">4</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2" data-i18n="step4_title">Take Pre/Post Tests</h3>
+                        <p class="text-slate-600 dark:text-slate-300 mb-4" data-i18n="step4_desc">Take pre-test (diagnostic) and post-test (minimum 80% to pass and unlock clinical practice).</p>
+                        <div class="flex gap-3">
+                            <a href="{{ url_for('clinical_assessment', assessment_type='pretest') }}" class="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-medium px-4 py-2 rounded-lg transition-colors border border-amber-200 dark:border-amber-800">
+                                <span data-i18n="step4_pretest">Pre-Test</span>
+                            </a>
+                            <a href="{{ url_for('clinical_assessment', assessment_type='posttest') }}" class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors {% if not profile.elearning_completed %}opacity-50 cursor-not-allowed{% endif %}" {% if not profile.elearning_completed %}onclick="return false;"{% endif %}>
+                                <span data-i18n="step4_posttest">Post-Test</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('index') }}" class="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 font-medium transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                <span data-i18n="back_to_dashboard">Back to Dashboard</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function() {
+        const translations = {
+            en: {
+                label_language: 'Language',
+                option_english: 'English',
+                option_indonesia: 'Indonesia',
+                title_onboarding: 'Pre-Clinical Onboarding',
+                subtitle_onboarding: 'Complete all requirements before starting clinical practice',
+                heading_progress: 'Onboarding Progress',
+                label_legal_documents: 'Legal Documents',
+                label_agreements_signed: 'Agreements Signed',
+                label_elearning_modules: 'E-Learning Modules',
+                label_post_test: 'Post-Test',
+                label_overall_completion: 'Overall Completion',
+                message_completed: '✨ Congratulations! You have completed all pre-clinical requirements and are ready to start clinical practice!',
+                step1_title: 'Upload Legal Documents',
+                step1_desc: 'Upload required documents: referral letter, health letter, insurance, and integrity pact.',
+                step1_action: 'Upload Documents',
+                step2_title: 'Sign Digital Agreements',
+                step2_desc: 'Review and sign: patient confidentiality, professional ethics, discipline, and emergency procedures.',
+                agreement_confidentiality: 'Confidentiality',
+                agreement_ethics: 'Ethics',
+                agreement_discipline: 'Discipline',
+                agreement_emergency: 'Emergency Procedures',
+                step3_title: 'Complete E-Learning Modules',
+                step3_desc: 'Complete mandatory training on hospital culture, patient safety, infection control, and more.',
+                step3_action: 'View Modules',
+                step4_title: 'Take Pre/Post Tests',
+                step4_desc: 'Take pre-test (diagnostic) and post-test (minimum 80% to pass and unlock clinical practice).',
+                step4_pretest: 'Pre-Test',
+                step4_posttest: 'Post-Test',
+                status_passed: 'Passed',
+                status_pending: 'Pending',
+                back_to_dashboard: 'Back to Dashboard'
+            },
+            id: {
+                label_language: 'Bahasa',
+                option_english: 'Inggris',
+                option_indonesia: 'Indonesia',
+                title_onboarding: 'Orientasi Pra-Klinik',
+                subtitle_onboarding: 'Selesaikan semua persyaratan sebelum memulai praktik klinik',
+                heading_progress: 'Progres Orientasi',
+                label_legal_documents: 'Dokumen Legal',
+                label_agreements_signed: 'Perjanjian Ditandatangani',
+                label_elearning_modules: 'Modul E-Learning',
+                label_post_test: 'Post-Test',
+                label_overall_completion: 'Penyelesaian Keseluruhan',
+                message_completed: '✨ Selamat! Anda telah menyelesaikan semua persyaratan pra-klinik dan siap memulai praktik klinik!',
+                step1_title: 'Unggah Dokumen Legal',
+                step1_desc: 'Unggah dokumen yang diperlukan: surat rujukan, surat kesehatan, asuransi, dan pakta integritas.',
+                step1_action: 'Unggah Dokumen',
+                step2_title: 'Tandatangani Perjanjian Digital',
+                step2_desc: 'Tinjau dan tandatangani: kerahasiaan pasien, etika profesi, disiplin, dan prosedur darurat.',
+                agreement_confidentiality: 'Kerahasiaan',
+                agreement_ethics: 'Etika',
+                agreement_discipline: 'Disiplin',
+                agreement_emergency: 'Prosedur Darurat',
+                step3_title: 'Selesaikan Modul E-Learning',
+                step3_desc: 'Selesaikan pelatihan wajib tentang budaya rumah sakit, keselamatan pasien, pengendalian infeksi, dan lainnya.',
+                step3_action: 'Lihat Modul',
+                step4_title: 'Ikuti Pre/Post Test',
+                step4_desc: 'Ikuti pre-test (diagnostik) dan post-test (minimal 80% untuk lulus dan membuka praktik klinik).',
+                step4_pretest: 'Pre-Test',
+                step4_posttest: 'Post-Test',
+                status_passed: 'Lulus',
+                status_pending: 'Menunggu',
+                back_to_dashboard: 'Kembali ke Dashboard'
+            }
+        };
+
+        const select = document.getElementById('language-select');
+        if (!select) return;
+
+        const applyLanguage = (lang) => {
+            const active = translations[lang] ? lang : 'en';
+            document.documentElement.setAttribute('lang', active === 'id' ? 'id' : 'en');
+            document.querySelectorAll('[data-i18n]').forEach((el) => {
+                const key = el.getAttribute('data-i18n');
+                const value = translations[active][key];
+                if (value) {
+                    el.textContent = value;
+                }
+            });
+        };
+
+        const savedLang = localStorage.getItem('language') || 'en';
+        select.value = savedLang;
+        applyLanguage(savedLang);
+
+        select.addEventListener('change', (event) => {
+            const lang = event.target.value;
+            localStorage.setItem('language', lang);
+            applyLanguage(lang);
+        });
+    })();
+</script>
+{% endblock %}

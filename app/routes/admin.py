@@ -1,7 +1,8 @@
 import os
+from datetime import datetime
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from models import db, User, Course, CourseModule, CourseMaterial, LibraryBook
+from models import db, User, Course, CourseModule, CourseMaterial, LibraryBook, ClinicalConfig, LegalDocument, StudentProfile
 from app.utils import admin_required, pemateri_required, sanitize_rich_text, convert_youtube_url, save_upload_image, allowed_image_file
 
 
@@ -59,6 +60,11 @@ def register_admin_routes(app):
     def approve_pemateri(user_id):
         """Approve pemateri role request."""
         user = User.query.get_or_404(user_id)
+        if user.role == 'admin':
+            user.pending_role = None
+            db.session.commit()
+            flash('Admins cannot be instructors.', 'info')
+            return redirect(url_for('admin_users'))
         user.role = 'pemateri'
         user.pending_role = None
         db.session.commit()
@@ -160,6 +166,140 @@ def register_admin_routes(app):
             db.session.commit()
             flash(f'User {username} deleted.', 'success')
         return redirect(url_for('admin_users'))
+
+    def get_clinical_config():
+        config = ClinicalConfig.query.first()
+        if not config:
+            config = ClinicalConfig()
+            db.session.add(config)
+            db.session.commit()
+        return config
+
+    @app.route('/admin/clinical/modules', methods=['GET', 'POST'])
+    @login_required
+    @admin_required
+    def admin_clinical_modules():
+        """Admin editor for clinical module settings."""
+        import json
+
+        config = get_clinical_config()
+
+        if request.method == 'POST':
+            doc_types = request.form.getlist('doc_type[]')
+            doc_labels = request.form.getlist('doc_label[]')
+            doc_requires = request.form.getlist('doc_requires_expiration[]')
+
+            documents = []
+            for idx, doc_type in enumerate(doc_types):
+                label = doc_labels[idx] if idx < len(doc_labels) else ''
+                if doc_type and label:
+                    documents.append({
+                        'type': doc_type.strip(),
+                        'label': label.strip(),
+                        'requires_expiration': doc_type in doc_requires
+                    })
+
+            agreement_types = request.form.getlist('agreement_type[]')
+            agreement_titles = request.form.getlist('agreement_title[]')
+            agreement_texts = request.form.getlist('agreement_text[]')
+
+            agreements = []
+            for idx, agreement_type in enumerate(agreement_types):
+                title = agreement_titles[idx] if idx < len(agreement_titles) else ''
+                text = agreement_texts[idx] if idx < len(agreement_texts) else ''
+                if agreement_type and title:
+                    agreements.append({
+                        'type': agreement_type.strip(),
+                        'title': title.strip(),
+                        'text': text.strip()
+                    })
+
+            required_course_ids = [int(cid) for cid in request.form.getlist('required_course_ids') if cid.isdigit()]
+
+            pretest_questions_raw = request.form.get('pretest_questions_json', '[]')
+            posttest_questions_raw = request.form.get('posttest_questions_json', '[]')
+
+            try:
+                pretest_questions = json.loads(pretest_questions_raw) if pretest_questions_raw else []
+                posttest_questions = json.loads(posttest_questions_raw) if posttest_questions_raw else []
+            except json.JSONDecodeError:
+                flash('Assessment questions JSON is invalid.', 'danger')
+                return redirect(request.url)
+
+            config.documents_json = json.dumps(documents)
+            config.agreements_json = json.dumps(agreements)
+            config.required_course_ids_json = json.dumps(required_course_ids)
+            config.pretest_questions_json = json.dumps(pretest_questions)
+            config.posttest_questions_json = json.dumps(posttest_questions)
+            db.session.commit()
+
+            flash('Clinical module settings updated successfully.', 'success')
+            return redirect(url_for('admin_clinical_modules'))
+
+        import json
+        documents = json.loads(config.documents_json or '[]')
+        agreements = json.loads(config.agreements_json or '[]')
+        required_course_ids = json.loads(config.required_course_ids_json or '[]')
+        pretest_questions = json.loads(config.pretest_questions_json or '[]')
+        posttest_questions = json.loads(config.posttest_questions_json or '[]')
+
+        clinical_courses = Course.query.filter_by(category='clinical').all()
+
+        return render_template('admin_clinical_modules.html',
+                             documents=documents,
+                             agreements=agreements,
+                             required_course_ids=required_course_ids,
+                             pretest_questions_json=json.dumps(pretest_questions, indent=2),
+                             posttest_questions_json=json.dumps(posttest_questions, indent=2),
+                             clinical_courses=clinical_courses)
+
+    @app.route('/admin/clinical/documents')
+    @login_required
+    @admin_required
+    def admin_clinical_documents():
+        """Admin page to approve/reject clinical documents."""
+        pending_docs = LegalDocument.query.filter_by(status='pending').order_by(LegalDocument.uploaded_at.desc()).all()
+        return render_template('admin_clinical_documents.html', pending_docs=pending_docs)
+
+    @app.route('/admin/clinical/documents/<int:doc_id>/approve', methods=['POST'])
+    @login_required
+    @admin_required
+    def approve_clinical_document(doc_id):
+        doc = LegalDocument.query.get_or_404(doc_id)
+        doc.status = 'verified'
+        doc.verified_by_id = current_user.id
+        doc.verified_at = datetime.utcnow()
+        db.session.commit()
+
+        # Update student profile documents_verified if all required docs are verified
+        config = get_clinical_config()
+        import json
+        required_types = {d['type'] for d in json.loads(config.documents_json or '[]')}
+        student_docs = LegalDocument.query.filter_by(student_id=doc.student_id).all()
+        verified_types = {d.document_type for d in student_docs if d.status == 'verified'}
+        profile = StudentProfile.query.get(doc.student_id)
+        if profile and required_types and required_types.issubset(verified_types):
+            profile.documents_verified = True
+            db.session.commit()
+
+        flash('Document approved.', 'success')
+        return redirect(url_for('admin_clinical_documents'))
+
+    @app.route('/admin/clinical/documents/<int:doc_id>/reject', methods=['POST'])
+    @login_required
+    @admin_required
+    def reject_clinical_document(doc_id):
+        doc = LegalDocument.query.get_or_404(doc_id)
+        doc.status = 'rejected'
+        doc.verified_by_id = current_user.id
+        doc.verified_at = datetime.utcnow()
+        db.session.commit()
+        profile = StudentProfile.query.get(doc.student_id)
+        if profile:
+            profile.documents_verified = False
+            db.session.commit()
+        flash('Document rejected.', 'info')
+        return redirect(url_for('admin_clinical_documents'))
 
     @app.route('/admin/courses')
     @login_required

@@ -422,7 +422,7 @@ Eleary/
 - [ ] Change `SECRET_KEY` in app.py
 - [ ] Set `debug=False` before production
 - [ ] Set up HTTPS/SSL
-- [ ] Use production database (PostgreSQL recommended)
+- [ ] Use SQLite3 (current) and configure backups
 - [ ] Configure file upload storage (local or cloud)
 - [ ] Set up logging
 - [ ] Configure email for notifications
@@ -482,7 +482,9 @@ Eleary/
 | **Database** | SQLite3 + SQLAlchemy | 3.0.5 |
 | **Authentication** | Flask-Login | 0.6.2 |
 | **Security** | Werkzeug | 2.3.6 |
-| **Frontend** | HTML5 + Tailwind CSS | CDN |
+| **Frontend** | HTML5 + Tailwind CSS + Vanilla JS | CDN |
+| **Templating** | Jinja2 | Built-in |
+| **Sanitization** | bleach | 6.1.0 |
 | **Styling** | Tailwind CSS | 3.x (CDN) |
 
 ---

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Documents Upload - E-Leary{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 py-12">
+    <div class="max-w-4xl mx-auto px-4">
+        <h1 class="text-4xl font-bold text-slate-900 dark:text-white mb-8 text-center">Upload Legal Documents</h1>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            {% for doc in required_documents %}
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">{{ doc.label }}</h3>
+                {% set existing_doc = existing_docs | selectattr('document_type', 'equalto', doc.type) | first %}
+                {% if existing_doc %}
+                <p class="text-sm text-green-600 dark:text-green-400 mb-2">✓ Uploaded - Status: {{ existing_doc.status.capitalize() }}</p>
+                {% endif %}
+                <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                    <input type="hidden" name="document_type" value="{{ doc.type }}">
+                    <input type="file" name="document_file" accept=".pdf,.jpg,.jpeg,.png" required class="w-full text-sm">
+                    {% if doc.requires_expiration %}
+                    <input type="date" name="expiration_date" placeholder="Expiration Date" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border rounded-lg dark:text-white">
+                    {% endif %}
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg">Upload</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('clinical_onboarding') }}" class="inline-flex items-center gap-2 text-teal-600 dark:text-teal-400 hover:underline">
+                ← Back to Onboarding
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Clinical Modules - E-Leary Admin{% endblock %}
+
+{% block content %}
+<div class="min-h-screen">
+    <div class="relative overflow-hidden bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 dark:from-emerald-600 dark:via-teal-600 dark:to-cyan-600">
+        <div class="relative max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white">Edit Clinical Module</h1>
+            <p class="text-white/80">Configure documents, agreements, required courses, and assessments</p>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4 py-10 sm:px-6 lg:px-8 -mt-6 relative z-10">
+        <form method="POST" class="space-y-8">
+            <!-- Documents -->
+            <div class="bg-white dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-lg p-8 border border-slate-200/50 dark:border-slate-700/50">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Required Documents</h2>
+                    <button type="button" id="add-doc" class="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold">Add Document</button>
+                </div>
+                <div id="doc-list" class="space-y-4">
+                    {% for doc in documents %}
+                    <div class="grid md:grid-cols-3 gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Type</label>
+                            <input type="text" name="doc_type[]" value="{{ doc.type }}" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white" placeholder="referral">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Label</label>
+                            <input type="text" name="doc_label[]" value="{{ doc.label }}" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white" placeholder="Referral Letter">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="inline-flex items-center gap-2 mt-6">
+                                <input type="checkbox" name="doc_requires_expiration[]" value="{{ doc.type }}" {% if doc.requires_expiration %}checked{% endif %}>
+                                <span class="text-sm text-slate-600 dark:text-slate-300">Requires expiration</span>
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Agreements -->
+            <div class="bg-white dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-lg p-8 border border-slate-200/50 dark:border-slate-700/50">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Agreements</h2>
+                    <button type="button" id="add-agreement" class="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold">Add Agreement</button>
+                </div>
+                <div id="agreement-list" class="space-y-4">
+                    {% for agreement in agreements %}
+                    <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Type</label>
+                                <input type="text" name="agreement_type[]" value="{{ agreement.type }}" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white" placeholder="confidentiality">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Title</label>
+                                <input type="text" name="agreement_title[]" value="{{ agreement.title }}" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white" placeholder="Confidentiality">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Agreement Text</label>
+                            <textarea name="agreement_text[]" rows="4" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white">{{ agreement.text }}</textarea>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Required Courses -->
+            <div class="bg-white dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-lg p-8 border border-slate-200/50 dark:border-slate-700/50">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Required Clinical Courses</h2>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Select the clinical courses required for onboarding. If none selected, all clinical courses are required.</p>
+                <div class="grid md:grid-cols-2 gap-3">
+                    {% for course in clinical_courses %}
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <input type="checkbox" name="required_course_ids" value="{{ course.id }}" {% if course.id in required_course_ids %}checked{% endif %}>
+                        <span class="text-sm text-slate-700 dark:text-slate-300">{{ course.title }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Assessments -->
+            <div class="bg-white dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-lg p-8 border border-slate-200/50 dark:border-slate-700/50">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Assessment Questions</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Pre-Test Questions (JSON)</label>
+                        <textarea name="pretest_questions_json" rows="10" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white font-mono text-xs">{{ pretest_questions_json }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Post-Test Questions (JSON)</label>
+                        <textarea name="posttest_questions_json" rows="10" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white font-mono text-xs">{{ posttest_questions_json }}</textarea>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-3">Format: [{"id": 1, "question": "...", "options": ["A","B","C","D"]}]</p>
+            </div>
+
+            <div class="flex gap-4">
+                <a href="{{ url_for('admin_users') }}" class="flex-1 px-6 py-3 rounded-2xl border border-slate-200 dark:border-slate-600 text-center text-slate-700 dark:text-slate-300">Back</a>
+                <button type="submit" class="flex-1 px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold">Save Settings</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const docList = document.getElementById('doc-list');
+    const agreementList = document.getElementById('agreement-list');
+
+    const syncDocTypeInputs = (container) => {
+        container.querySelectorAll('input[name="doc_type[]"]').forEach((input) => {
+            input.addEventListener('input', (e) => {
+                const wrapper = e.target.closest('.grid');
+                const checkbox = wrapper?.querySelector('input[name="doc_requires_expiration[]"]');
+                if (checkbox) checkbox.value = e.target.value;
+            });
+        });
+    };
+
+    syncDocTypeInputs(docList);
+
+    document.getElementById('add-doc')?.addEventListener('click', () => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'grid md:grid-cols-3 gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-700';
+        wrapper.innerHTML = `
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Type</label>
+                <input type="text" name="doc_type[]" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white" placeholder="referral">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Label</label>
+                <input type="text" name="doc_label[]" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white" placeholder="Referral Letter">
+            </div>
+            <div class="flex items-center gap-3">
+                <label class="inline-flex items-center gap-2 mt-6">
+                    <input type="checkbox" name="doc_requires_expiration[]" value="">
+                    <span class="text-sm text-slate-600 dark:text-slate-300">Requires expiration</span>
+                </label>
+            </div>
+        `;
+        syncDocTypeInputs(wrapper);
+        docList.appendChild(wrapper);
+    });
+
+    document.getElementById('add-agreement')?.addEventListener('click', () => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4';
+        wrapper.innerHTML = `
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Type</label>
+                    <input type="text" name="agreement_type[]" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white" placeholder="confidentiality">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Title</label>
+                    <input type="text" name="agreement_title[]" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white" placeholder="Confidentiality">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Agreement Text</label>
+                <textarea name="agreement_text[]" rows="4" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white"></textarea>
+            </div>
+        `;
+        agreementList.appendChild(wrapper);
+    });
+</script>
+{% endblock %}

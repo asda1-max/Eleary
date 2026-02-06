@@ -335,8 +335,10 @@
 ### ✅ Tech Stack (All included)
 - [x] Backend: Python Flask
 - [x] Database: SQLite3 + SQLAlchemy
-- [x] Frontend: HTML5 + Tailwind CSS (CDN)
+- [x] Frontend: HTML5 + Tailwind CSS (CDN) + Vanilla JS
+- [x] Templating: Jinja2
 - [x] Auth: Flask-Login
+- [x] Sanitization: bleach
 
 ### ✅ User Roles (2/2)
 - [x] Admin: Full access

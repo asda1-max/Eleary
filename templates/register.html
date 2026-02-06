@@ -24,64 +24,64 @@
                     </svg>
                 </div>
             </div>
-            <h1 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Create Account</h1>
-            <p class="text-slate-600 dark:text-slate-400 font-medium">Join E-Leary and start learning today</p>
+            <h1 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-2 tracking-tight" data-i18n="register_title">Create Account</h1>
+            <p class="text-slate-600 dark:text-slate-400 font-medium" data-i18n="register_subtitle">Join E-Leary and start learning today</p>
         </div>
 
         <!-- Register Form -->
         <form method="POST" class="space-y-5">
             <!-- Username -->
             <div>
-                <label for="username" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Username</label>
+                <label for="username" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" data-i18n="register_username">Username</label>
                 <div class="relative">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 110 12 6 6 0 010-12zm0 14c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/></svg>
-                    <input type="text" id="username" name="username" required 
+                          <input type="text" id="username" name="username" required 
                            class="w-full pl-12 pr-4 py-3.5 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all bg-white/80 dark:bg-slate-700/50 dark:text-white"
-                           placeholder="Choose a username">
+                              placeholder="Choose a username" data-i18n-placeholder="register_username_placeholder">
                 </div>
             </div>
 
             <!-- Email -->
             <div>
-                <label for="email" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
+                <label for="email" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" data-i18n="register_email">Email Address</label>
                 <div class="relative">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
-                    <input type="email" id="email" name="email" required 
+                          <input type="email" id="email" name="email" required 
                            class="w-full pl-12 pr-4 py-3.5 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all bg-white/80 dark:bg-slate-700/50 dark:text-white"
-                           placeholder="your@hospital.com">
+                              placeholder="your@hospital.com" data-i18n-placeholder="register_email_placeholder">
                 </div>
             </div>
 
             <!-- Division -->
             <div>
-                <label for="division" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Division/Department</label>
+                <label for="division" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" data-i18n="register_division">Division/Department</label>
                 <div class="relative">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                     <select id="division" name="division" class="w-full pl-12 pr-4 py-3.5 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all appearance-none bg-white/80 dark:bg-slate-700/50 dark:text-white">
-                        <option value="Medical">🏥 Medical</option>
-                        <option value="Nursing">👨‍⚕️ Nursing</option>
-                        <option value="Mahasiswa/Koas">🎓 Mahasiswa/Koas</option>
-                        <option value="Administration">📋 Administration</option>
-                        <option value="IT">💻 IT</option>
-                        <option value="Other">📁 Other</option>
+                        <option value="Medical" data-i18n="register_division_medical">🏥 Medical</option>
+                        <option value="Nursing" data-i18n="register_division_nursing">👨‍⚕️ Nursing</option>
+                        <option value="Mahasiswa/Koas" data-i18n="register_division_student">🎓 Mahasiswa/Koas</option>
+                        <option value="Administration" data-i18n="register_division_admin">📋 Administration</option>
+                        <option value="IT" data-i18n="register_division_it">💻 IT</option>
+                        <option value="Other" data-i18n="register_division_other">📁 Other</option>
                     </select>
                 </div>
             </div>
 
             <!-- Password -->
             <div>
-                <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Password</label>
+                <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" data-i18n="register_password">Password</label>
                 <div class="relative">
                     <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
-                    <input type="password" id="password" name="password" required 
+                          <input type="password" id="password" name="password" required 
                            class="w-full pl-12 pr-4 py-3.5 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all bg-white/80 dark:bg-slate-700/50 dark:text-white"
-                           placeholder="Create a strong password">
+                              placeholder="Create a strong password" data-i18n-placeholder="register_password_placeholder">
                 </div>
             </div>
 
@@ -90,8 +90,8 @@
                 <input type="checkbox" id="request_pemateri" name="request_pemateri" 
                        class="mt-1 w-4 h-4 text-teal-600 bg-white dark:bg-slate-700 border-teal-300 dark:border-teal-700 rounded focus:ring-teal-500 focus:ring-2 cursor-pointer">
                 <label for="request_pemateri" class="text-sm cursor-pointer">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Register as Instructor (Pemateri)</span>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Check this if you want to create and manage training courses</p>
+                    <span class="font-semibold text-slate-800 dark:text-slate-200" data-i18n="register_instructor_label">Register as Instructor (Pemateri)</span>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1" data-i18n="register_instructor_help">Check this if you want to create and manage training courses</p>
                 </label>
             </div>
 
@@ -100,7 +100,7 @@
                 <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                 </svg>
-                <span>Create Account</span>
+                <span data-i18n="register_create_account">Create Account</span>
             </button>
         </form>
 
@@ -110,19 +110,72 @@
                 <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-                <span class="px-4 bg-white dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 rounded-full">Already have an account?</span>
+                <span class="px-4 bg-white dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 rounded-full" data-i18n="register_have_account">Already have an account?</span>
             </div>
         </div>
 
         <!-- Login Link -->
-        <a href="{{ url_for('login') }}" class="w-full block text-center bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-500 text-slate-800 dark:text-white font-semibold py-3.5 rounded-2xl transition-all duration-300 border border-slate-200 dark:border-slate-600 shadow-sm">
+        <a href="{{ url_for('login') }}" class="w-full block text-center bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-500 text-slate-800 dark:text-white font-semibold py-3.5 rounded-2xl transition-all duration-300 border border-slate-200 dark:border-slate-600 shadow-sm" data-i18n="register_sign_in">
             Sign In
         </a>
 
         <!-- Terms -->
-        <p class="text-xs text-slate-500 dark:text-slate-400 text-center mt-6">
+        <p class="text-xs text-slate-500 dark:text-slate-400 text-center mt-6" data-i18n-html="register_terms">
             By registering, you agree to our <a href="#" class="text-teal-600 dark:text-teal-400 hover:underline font-medium">Terms of Service</a> and <a href="#" class="text-teal-600 dark:text-teal-400 hover:underline font-medium">Privacy Policy</a>
         </p>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.PAGE_TRANSLATIONS = {
+        en: {
+            register_title: 'Create Account',
+            register_subtitle: 'Join E-Leary and start learning today',
+            register_username: 'Username',
+            register_username_placeholder: 'Choose a username',
+            register_email: 'Email Address',
+            register_email_placeholder: 'your@hospital.com',
+            register_division: 'Division/Department',
+            register_division_medical: '🏥 Medical',
+            register_division_nursing: '👨‍⚕️ Nursing',
+            register_division_student: '🎓 Mahasiswa/Koas',
+            register_division_admin: '📋 Administration',
+            register_division_it: '💻 IT',
+            register_division_other: '📁 Other',
+            register_password: 'Password',
+            register_password_placeholder: 'Create a strong password',
+            register_instructor_label: 'Register as Instructor (Pemateri)',
+            register_instructor_help: 'Check this if you want to create and manage training courses',
+            register_create_account: 'Create Account',
+            register_have_account: 'Already have an account?',
+            register_sign_in: 'Sign In',
+            register_terms: 'By registering, you agree to our <a href="#" class="text-teal-600 dark:text-teal-400 hover:underline font-medium">Terms of Service</a> and <a href="#" class="text-teal-600 dark:text-teal-400 hover:underline font-medium">Privacy Policy</a>'
+        },
+        id: {
+            register_title: 'Buat Akun',
+            register_subtitle: 'Bergabung dengan E-Leary dan mulai belajar hari ini',
+            register_username: 'Nama Pengguna',
+            register_username_placeholder: 'Pilih nama pengguna',
+            register_email: 'Alamat Email',
+            register_email_placeholder: 'your@hospital.com',
+            register_division: 'Divisi/Departemen',
+            register_division_medical: '🏥 Medis',
+            register_division_nursing: '👨‍⚕️ Keperawatan',
+            register_division_student: '🎓 Mahasiswa/Koas',
+            register_division_admin: '📋 Administrasi',
+            register_division_it: '💻 TI',
+            register_division_other: '📁 Lainnya',
+            register_password: 'Kata Sandi',
+            register_password_placeholder: 'Buat kata sandi yang kuat',
+            register_instructor_label: 'Daftar sebagai Instruktur (Pemateri)',
+            register_instructor_help: 'Centang ini jika Anda ingin membuat dan mengelola kursus pelatihan',
+            register_create_account: 'Buat Akun',
+            register_have_account: 'Sudah punya akun?',
+            register_sign_in: 'Masuk',
+            register_terms: 'Dengan mendaftar, Anda menyetujui <a href="#" class="text-teal-600 dark:text-teal-400 hover:underline font-medium">Syarat Layanan</a> dan <a href="#" class="text-teal-600 dark:text-teal-400 hover:underline font-medium">Kebijakan Privasi</a>'
+        }
+    };
+</script>
 {% endblock %}

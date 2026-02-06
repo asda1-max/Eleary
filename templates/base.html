@@ -234,13 +234,13 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 flex-nowrap whitespace-nowrap shrink-0 min-w-max">
                     <div class="w-10 h-10 bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/30 animate-pulse-slow">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
                     </div>
-                    <span class="text-xl font-bold gradient-text">E-Leary</span>
+                    <span class="text-xl font-bold gradient-text whitespace-nowrap leading-none">E-Leary</span>
                 </div>
 
                 <!-- Navigation Links -->
@@ -248,50 +248,58 @@
                     <div class="hidden md:flex items-center gap-1 flex-nowrap">
                         <a href="{{ url_for('index') }}" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all duration-200 whitespace-nowrap">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                            <span>Dashboard</span>
+                            <span data-i18n="nav_dashboard">Dashboard</span>
                         </a>
                         <a href="{{ url_for('courses') }}" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all duration-200 whitespace-nowrap">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                            <span>Courses</span>
+                            <span data-i18n="nav_courses">Courses</span>
                         </a>
                         <a href="{{ url_for('library') }}" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all duration-200 whitespace-nowrap">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
-                            <span>E-Library</span>
+                            <span data-i18n="nav_library">E-Library</span>
                         </a>
                         <a href="{{ url_for('news') }}" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all duration-200 whitespace-nowrap">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-                            <span>News</span>
+                            <span data-i18n="nav_news">News</span>
                         </a>
                         <a href="{{ url_for('account_settings') }}" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all duration-200 whitespace-nowrap">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                            <span>Account</span>
+                            <span data-i18n="nav_account">Account</span>
                         </a>
                         {% if current_user.can_manage_courses() or current_user.is_admin() %}
                             <div class="relative" id="adminDropdown">
                                 <button onclick="toggleAdminDropdown()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 hover:bg-violet-50 dark:hover:bg-slate-700 font-medium transition-all duration-200 whitespace-nowrap">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                    <span>Manage</span>
+                                    <span data-i18n="nav_manage">Manage</span>
                                     <svg class="w-4 h-4 transition-transform" id="adminDropdownIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
-                                <div id="adminDropdownMenu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/50 dark:border-slate-700/50 py-2 z-50 animate-slide-down">
+                                <div id="adminDropdownMenu" class="hidden absolute right-0 top-full mt-3 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 border border-slate-200/50 dark:border-slate-700/50 py-2 z-50 animate-slide-down">
                                     {% if current_user.can_manage_courses() %}
                                         <a href="{{ url_for('admin_courses') }}" class="flex items-center gap-3 px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-violet-50 dark:hover:bg-slate-700 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                                            <span class="font-medium">My Courses</span>
+                                            <span class="font-medium" data-i18n="nav_my_courses">My Courses</span>
                                         </a>
                                     {% endif %}
                                     {% if current_user.is_admin() %}
                                         <a href="{{ url_for('admin_news') }}" class="flex items-center gap-3 px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-violet-50 dark:hover:bg-slate-700 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-                                            <span class="font-medium">Manage News</span>
+                                            <span class="font-medium" data-i18n="nav_manage_news">Manage News</span>
+                                        </a>
+                                        <a href="{{ url_for('admin_clinical_modules') }}" class="flex items-center gap-3 px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1-3-3-1 3-1 1-3 .75 3 3 1-3 1zM13 7l1-3 1 3 3 1-3 1-1 3-1-3-3-1 3-1zM4 7l1.5-4L7 7l4 1.5L7 10 5.5 14 4 10l-4-1.5L4 7z"/></svg>
+                                            <span class="font-medium" data-i18n="nav_edit_clinical">Edit Clinical Module</span>
+                                        </a>
+                                        <a href="{{ url_for('admin_clinical_documents') }}" class="flex items-center gap-3 px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-700 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            <span class="font-medium" data-i18n="nav_clinical_docs">Clinical Docs</span>
                                         </a>
                                         <a href="{{ url_for('admin_approvals') }}" class="flex items-center gap-3 px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-700 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                            <span class="font-medium">Library Approvals</span>
+                                            <span class="font-medium" data-i18n="nav_library_approvals">Library Approvals</span>
                                         </a>
                                         <a href="{{ url_for('admin_users') }}" class="flex items-center gap-3 px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                                            <span class="font-medium">Manage Users</span>
+                                            <span class="font-medium" data-i18n="nav_manage_users">Manage Users</span>
                                         </a>
                                     {% endif %}
                                 </div>
@@ -301,6 +309,16 @@
 
                     <!-- User Menu -->
                     <div class="flex items-center gap-4">
+                        <!-- Language Toggle -->
+                        <div class="hidden md:flex items-center gap-2 bg-slate-100 dark:bg-slate-700 rounded-lg px-3 py-1.5 border border-slate-200 dark:border-slate-600">
+                            <svg class="w-4 h-4 text-slate-500 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m6 16H7m8 0l-4-4m0 0l-4 4m4-4V7"/>
+                            </svg>
+                            <select id="language-select" class="text-sm font-semibold text-slate-700 dark:text-slate-200 bg-transparent focus:outline-none">
+                                <option value="en" data-i18n="lang_english">English</option>
+                                <option value="id" data-i18n="lang_indonesian">Indonesia</option>
+                            </select>
+                        </div>
                         <!-- Dark Mode Toggle -->
                         <button id="darkModeToggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" title="Toggle dark mode">
                             <svg id="sunIcon" class="w-5 h-5 text-slate-800 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,7 +344,7 @@
                         </div>
                         <a href="{{ url_for('logout') }}" class="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                            <span class="hidden sm:inline">Logout</span>
+                            <span class="hidden sm:inline" data-i18n="nav_logout">Logout</span>
                         </a>
                         <!-- Mobile Menu Button -->
                         <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
@@ -335,8 +353,17 @@
                     </div>
                 {% else %}
                     <div class="flex items-center gap-3">
-                        <a href="{{ url_for('login') }}" class="text-slate-600 hover:text-teal-600 font-medium transition-colors px-4 py-2">Login</a>
-                        <a href="{{ url_for('register') }}" class="btn-glow bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold py-2.5 px-5 rounded-xl shadow-lg shadow-teal-500/30 transition-all duration-300">
+                        <div class="hidden md:flex items-center gap-2 bg-slate-100 dark:bg-slate-700 rounded-lg px-3 py-1.5 border border-slate-200 dark:border-slate-600">
+                            <svg class="w-4 h-4 text-slate-500 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m6 16H7m8 0l-4-4m0 0l-4 4m4-4V7"/>
+                            </svg>
+                            <select id="language-select-guest" class="text-sm font-semibold text-slate-700 dark:text-slate-200 bg-transparent focus:outline-none">
+                                <option value="en" data-i18n="lang_english">English</option>
+                                <option value="id" data-i18n="lang_indonesian">Indonesia</option>
+                            </select>
+                        </div>
+                        <a href="{{ url_for('login') }}" class="text-slate-600 hover:text-teal-600 font-medium transition-colors px-4 py-2" data-i18n="nav_login">Login</a>
+                        <a href="{{ url_for('register') }}" class="btn-glow bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold py-2.5 px-5 rounded-xl shadow-lg shadow-teal-500/30 transition-all duration-300" data-i18n="nav_get_started">
                             Get Started
                         </a>
                     </div>
@@ -349,23 +376,23 @@
                     <div class="flex flex-col gap-1 pt-2 border-t border-slate-200 dark:border-slate-700">
                         <a href="{{ url_for('index') }}" class="px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                            Dashboard
+                            <span data-i18n="nav_dashboard">Dashboard</span>
                         </a>
                         <a href="{{ url_for('courses') }}" class="px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                            Courses
+                            <span data-i18n="nav_courses">Courses</span>
                         </a>
                         <a href="{{ url_for('library') }}" class="px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
-                            E-Library
+                            <span data-i18n="nav_library">E-Library</span>
                         </a>
                         <a href="{{ url_for('news') }}" class="px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-                            News
+                            <span data-i18n="nav_news">News</span>
                         </a>
                         <a href="{{ url_for('account_settings') }}" class="px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                            Account Settings
+                            <span data-i18n="nav_account_settings">Account Settings</span>
                         </a>
                         
                         {% if current_user.can_manage_courses() or current_user.is_admin() %}
@@ -373,7 +400,7 @@
                             <button onclick="toggleMobileAdminDropdown()" class="w-full px-4 py-3 rounded-lg text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 hover:bg-violet-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                    Manage
+                                    <span data-i18n="nav_manage">Manage</span>
                                 </div>
                                 <svg class="w-5 h-5 transition-transform" id="mobileAdminDropdownIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
@@ -383,21 +410,29 @@
                                 {% if current_user.can_manage_courses() %}
                                     <a href="{{ url_for('admin_courses') }}" class="px-4 py-3 rounded-lg text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 hover:bg-violet-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                                        My Courses
+                                        <span data-i18n="nav_my_courses">My Courses</span>
                                     </a>
                                 {% endif %}
                                 {% if current_user.is_admin() %}
                                     <a href="{{ url_for('admin_news') }}" class="px-4 py-3 rounded-lg text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 hover:bg-violet-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-                                        Manage News
+                                        <span data-i18n="nav_manage_news">Manage News</span>
+                                    </a>
+                                    <a href="{{ url_for('admin_clinical_modules') }}" class="px-4 py-3 rounded-lg text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1-3-3-1 3-1 1-3 .75 3 3 1-3 1zM13 7l1-3 1 3 3 1-3 1-1 3-1-3-3-1 3-1zM4 7l1.5-4L7 7l4 1.5L7 10 5.5 14 4 10l-4-1.5L4 7z"/></svg>
+                                        <span data-i18n="nav_edit_clinical">Edit Clinical Module</span>
+                                    </a>
+                                    <a href="{{ url_for('admin_clinical_documents') }}" class="px-4 py-3 rounded-lg text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <span data-i18n="nav_clinical_docs">Clinical Docs</span>
                                     </a>
                                     <a href="{{ url_for('admin_approvals') }}" class="px-4 py-3 rounded-lg text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                        Library Approvals
+                                        <span data-i18n="nav_library_approvals">Library Approvals</span>
                                     </a>
                                     <a href="{{ url_for('admin_users') }}" class="px-4 py-3 rounded-lg text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-slate-700 font-medium transition-all flex items-center gap-3">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                                        Manage Users
+                                        <span data-i18n="nav_manage_users">Manage Users</span>
                                     </a>
                                 {% endif %}
                             </div>
@@ -469,34 +504,34 @@
                         </div>
                         <span class="text-xl font-bold gradient-text">E-Leary</span>
                     </div>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Hospital E-Learning & Management System for modern healthcare education.</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed" data-i18n="footer_tagline">Hospital E-Learning & Management System for modern healthcare education.</p>
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-slate-200 mb-4 uppercase tracking-wider">Quick Links</h3>
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-slate-200 mb-4 uppercase tracking-wider" data-i18n="footer_quick_links">Quick Links</h3>
                     <ul class="space-y-3">
                         {% if current_user.is_authenticated %}
-                            <li><a href="{{ url_for('courses') }}" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>Courses</a></li>
-                            <li><a href="{{ url_for('library') }}" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>E-Library</a></li>
+                            <li><a href="{{ url_for('courses') }}" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg><span data-i18n="footer_courses">Courses</span></a></li>
+                            <li><a href="{{ url_for('library') }}" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg><span data-i18n="footer_library">E-Library</span></a></li>
                         {% endif %}
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-slate-200 mb-4 uppercase tracking-wider">Support</h3>
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-slate-200 mb-4 uppercase tracking-wider" data-i18n="footer_support">Support</h3>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Help Center</a></li>
-                        <li><a href="#" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>Contact Us</a></li>
+                        <li><a href="#" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span data-i18n="footer_help_center">Help Center</span></a></li>
+                        <li><a href="#" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span data-i18n="footer_contact_us">Contact Us</span></a></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-slate-200 mb-4 uppercase tracking-wider">Legal</h3>
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-slate-200 mb-4 uppercase tracking-wider" data-i18n="footer_legal">Legal</h3>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Privacy Policy</a></li>
-                        <li><a href="#" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Terms of Service</a></li>
+                        <li><a href="#" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg><span data-i18n="footer_privacy">Privacy Policy</span></a></li>
+                        <li><a href="#" class="text-sm text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span data-i18n="footer_terms">Terms of Service</span></a></li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-slate-200/50 dark:border-slate-700 mt-10 pt-8">
-                <p class="text-sm text-slate-500 dark:text-slate-400 text-center">© 2026 RST Slamet Riyadi Solo. All rights reserved. Built with ❤️ for healthcare education.</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 text-center" data-i18n="footer_copyright">© 2026 RST Slamet Riyadi Solo. All rights reserved. Built with ❤️ for healthcare education.</p>
             </div>
         </div>
     </footer>
@@ -522,6 +557,347 @@
                 localStorage.setItem('darkMode', isDark);
             });
         }
+
+        // Language Toggle
+        const langSelect = document.getElementById('language-select');
+        const langSelectGuest = document.getElementById('language-select-guest');
+
+        const baseTranslations = {
+            en: {
+                nav_dashboard: 'Dashboard',
+                nav_courses: 'Courses',
+                nav_library: 'E-Library',
+                nav_news: 'News',
+                nav_account: 'Account',
+                nav_account_settings: 'Account Settings',
+                nav_manage: 'Manage',
+                nav_my_courses: 'My Courses',
+                nav_manage_news: 'Manage News',
+                nav_edit_clinical: 'Edit Clinical Module',
+                nav_clinical_docs: 'Clinical Docs',
+                nav_library_approvals: 'Library Approvals',
+                nav_manage_users: 'Manage Users',
+                nav_logout: 'Logout',
+                nav_login: 'Login',
+                nav_get_started: 'Get Started',
+                lang_english: 'English',
+                lang_indonesian: 'Indonesia',
+                footer_tagline: 'Hospital E-Learning & Management System for modern healthcare education.',
+                footer_quick_links: 'Quick Links',
+                footer_courses: 'Courses',
+                footer_library: 'E-Library',
+                footer_support: 'Support',
+                footer_help_center: 'Help Center',
+                footer_contact_us: 'Contact Us',
+                footer_legal: 'Legal',
+                footer_privacy: 'Privacy Policy',
+                footer_terms: 'Terms of Service',
+                footer_copyright: '© 2026 RST Slamet Riyadi Solo. All rights reserved. Built with ❤️ for healthcare education.'
+            },
+            id: {
+                nav_dashboard: 'Dasbor',
+                nav_courses: 'Kursus',
+                nav_library: 'E-Perpustakaan',
+                nav_news: 'Berita',
+                nav_account: 'Akun',
+                nav_account_settings: 'Pengaturan Akun',
+                nav_manage: 'Kelola',
+                nav_my_courses: 'Kursus Saya',
+                nav_manage_news: 'Kelola Berita',
+                nav_edit_clinical: 'Kelola Modul Klinik',
+                nav_clinical_docs: 'Dokumen Klinik',
+                nav_library_approvals: 'Persetujuan Perpustakaan',
+                nav_manage_users: 'Kelola Pengguna',
+                nav_logout: 'Keluar',
+                nav_login: 'Masuk',
+                nav_get_started: 'Mulai',
+                lang_english: 'Inggris',
+                lang_indonesian: 'Indonesia',
+                footer_tagline: 'Sistem E-Learning & Manajemen Rumah Sakit untuk pendidikan kesehatan modern.',
+                footer_quick_links: 'Tautan Cepat',
+                footer_courses: 'Kursus',
+                footer_library: 'E-Perpustakaan',
+                footer_support: 'Dukungan',
+                footer_help_center: 'Pusat Bantuan',
+                footer_contact_us: 'Hubungi Kami',
+                footer_legal: 'Hukum',
+                footer_privacy: 'Kebijakan Privasi',
+                footer_terms: 'Syarat Layanan',
+                footer_copyright: '© 2026 RST Slamet Riyadi Solo. Seluruh hak cipta. Dibuat dengan ❤️ untuk pendidikan kesehatan.'
+            }
+        };
+
+        const textTranslations = {
+            id: {
+                'Welcome back': 'Selamat datang kembali',
+                'Latest News': 'Berita Terbaru',
+                'View All': 'Lihat Semua',
+                'Enrolled Courses': 'Kursus Terdaftar',
+                'Active enrollments': 'Pendaftaran aktif',
+                'Available Courses': 'Kursus Tersedia',
+                'Ready to explore': 'Siap dijelajahi',
+                'Division': 'Divisi',
+                'Not set': 'Belum diatur',
+                'Admin Account': 'Akun Admin',
+                'Continue Learning': 'Lanjut Belajar',
+                'Browse Courses': 'Jelajahi Kursus',
+                'Explore E-Library': 'Jelajahi E-Perpustakaan',
+                'Visit Library': 'Kunjungi Perpustakaan',
+                'Clinical Practice': 'Praktik Klinik',
+                'Pre-Clinical': 'Pra-Klinik',
+                'In Progress': 'Sedang Berjalan',
+                'View Status': 'Lihat Status',
+                'Digital Logbook': 'Logbook Digital',
+                'Dashboard': 'Dasbor',
+                'Courses': 'Kursus',
+                'E-Library': 'E-Perpustakaan',
+                'News': 'Berita',
+                'Account': 'Akun',
+                'Account Settings': 'Pengaturan Akun',
+                'Manage': 'Kelola',
+                'My Courses': 'Kursus Saya',
+                'Manage News': 'Kelola Berita',
+                'Library Approvals': 'Persetujuan Perpustakaan',
+                'Manage Users': 'Kelola Pengguna',
+                'Logout': 'Keluar',
+                'Login': 'Masuk',
+                'Get Started': 'Mulai',
+                'Quick Links': 'Tautan Cepat',
+                'Support': 'Dukungan',
+                'Help Center': 'Pusat Bantuan',
+                'Contact Us': 'Hubungi Kami',
+                'Legal': 'Hukum',
+                'Privacy Policy': 'Kebijakan Privasi',
+                'Terms of Service': 'Syarat Layanan',
+                'Course Catalog': 'Katalog Kursus',
+                'Search Courses': 'Cari Kursus',
+                'Category': 'Kategori',
+                'All Categories': 'Semua Kategori',
+                'Administration': 'Administrasi',
+                'Reset Filters': 'Atur Ulang Filter',
+                'Start Learning': 'Mulai Belajar',
+                'Previous': 'Sebelumnya',
+                'Next': 'Berikutnya',
+                'No courses found': 'Tidak ada kursus ditemukan',
+                'Try adjusting your search filters or check back soon.': 'Coba sesuaikan filter pencarian atau periksa kembali nanti.',
+                'E-Learning Modules': 'Modul E-Learning',
+                'Back to Onboarding': 'Kembali ke Orientasi',
+                'Sign Agreement': 'Tandatangani Perjanjian',
+                'Back': 'Kembali',
+                'Profile Picture': 'Foto Profil',
+                'Profile Information': 'Informasi Profil',
+                'Save Changes': 'Simpan Perubahan',
+                'Change Password': 'Ubah Kata Sandi',
+                'Current Password': 'Kata Sandi Saat Ini',
+                'New Password': 'Kata Sandi Baru',
+                'Confirm New Password': 'Konfirmasi Kata Sandi Baru',
+                'Update Password': 'Perbarui Kata Sandi',
+                'Role Requests': 'Permintaan Peran',
+                'Approved': 'Disetujui',
+                'Pending Approval': 'Menunggu Persetujuan',
+                'Apply': 'Ajukan',
+                'Enter your username': 'Masukkan nama pengguna',
+                'Enter your password': 'Masukkan kata sandi',
+                'Choose a username': 'Pilih nama pengguna',
+                'Email Address': 'Alamat Email',
+                'your@hospital.com': 'your@hospital.com',
+                'Division/Department': 'Divisi/Departemen',
+                'Create a strong password': 'Buat kata sandi yang kuat',
+                'Search by title or description...': 'Cari berdasarkan judul atau deskripsi...',
+                'Create Account': 'Buat Akun',
+                'Sign In': 'Masuk',
+                "Don't have an account?": 'Belum punya akun?',
+                'Already have an account?': 'Sudah punya akun?',
+                'Demo Credentials': 'Kredensial Demo',
+                'Admin:': 'Admin:',
+                'User:': 'Pengguna:',
+                'Register': 'Daftar',
+                'Profile Picture': 'Foto Profil',
+                'Profile Information': 'Informasi Profil',
+                'Save Changes': 'Simpan Perubahan',
+                'Change Password': 'Ubah Kata Sandi',
+                'Update Password': 'Perbarui Kata Sandi',
+                'Role Requests': 'Permintaan Peran',
+                'Edit Clinical Module': 'Kelola Modul Klinik',
+                'Approve Clinical Docs': 'Setujui Dokumen Klinik',
+                'Clinical Docs': 'Dokumen Klinik',
+                'Admin: Clinical Module': 'Admin: Modul Klinik',
+                'Approve Clinical Docs': 'Setujui Dokumen Klinik'
+            },
+            en: {
+                'Selamat datang kembali': 'Welcome back',
+                'Berita Terbaru': 'Latest News',
+                'Lihat Semua': 'View All',
+                'Kursus Terdaftar': 'Enrolled Courses',
+                'Pendaftaran aktif': 'Active enrollments',
+                'Kursus Tersedia': 'Available Courses',
+                'Siap dijelajahi': 'Ready to explore',
+                'Divisi': 'Division',
+                'Belum diatur': 'Not set',
+                'Akun Admin': 'Admin Account',
+                'Lanjut Belajar': 'Continue Learning',
+                'Jelajahi Kursus': 'Browse Courses',
+                'Jelajahi E-Perpustakaan': 'Explore E-Library',
+                'Kunjungi Perpustakaan': 'Visit Library',
+                'Praktik Klinik': 'Clinical Practice',
+                'Pra-Klinik': 'Pre-Clinical',
+                'Sedang Berjalan': 'In Progress',
+                'Lihat Status': 'View Status',
+                'Logbook Digital': 'Digital Logbook',
+                'Dasbor': 'Dashboard',
+                'Kursus': 'Courses',
+                'E-Perpustakaan': 'E-Library',
+                'Berita': 'News',
+                'Akun': 'Account',
+                'Pengaturan Akun': 'Account Settings',
+                'Kelola': 'Manage',
+                'Kursus Saya': 'My Courses',
+                'Kelola Berita': 'Manage News',
+                'Persetujuan Perpustakaan': 'Library Approvals',
+                'Kelola Pengguna': 'Manage Users',
+                'Keluar': 'Logout',
+                'Masuk': 'Login',
+                'Mulai': 'Get Started',
+                'Tautan Cepat': 'Quick Links',
+                'Dukungan': 'Support',
+                'Pusat Bantuan': 'Help Center',
+                'Hubungi Kami': 'Contact Us',
+                'Hukum': 'Legal',
+                'Kebijakan Privasi': 'Privacy Policy',
+                'Syarat Layanan': 'Terms of Service',
+                'Katalog Kursus': 'Course Catalog',
+                'Cari Kursus': 'Search Courses',
+                'Kategori': 'Category',
+                'Semua Kategori': 'All Categories',
+                'Administrasi': 'Administration',
+                'Atur Ulang Filter': 'Reset Filters',
+                'Mulai Belajar': 'Start Learning',
+                'Sebelumnya': 'Previous',
+                'Berikutnya': 'Next',
+                'Tidak ada kursus ditemukan': 'No courses found',
+                'Coba sesuaikan filter pencarian atau periksa kembali nanti.': 'Try adjusting your search filters or check back soon.',
+                'Modul E-Learning': 'E-Learning Modules',
+                'Kembali ke Orientasi': 'Back to Onboarding',
+                'Tandatangani Perjanjian': 'Sign Agreement',
+                'Kembali': 'Back',
+                'Foto Profil': 'Profile Picture',
+                'Informasi Profil': 'Profile Information',
+                'Simpan Perubahan': 'Save Changes',
+                'Ubah Kata Sandi': 'Change Password',
+                'Kata Sandi Saat Ini': 'Current Password',
+                'Kata Sandi Baru': 'New Password',
+                'Konfirmasi Kata Sandi Baru': 'Confirm New Password',
+                'Perbarui Kata Sandi': 'Update Password',
+                'Permintaan Peran': 'Role Requests',
+                'Disetujui': 'Approved',
+                'Menunggu Persetujuan': 'Pending Approval',
+                'Ajukan': 'Apply',
+                'Masukkan nama pengguna': 'Enter your username',
+                'Masukkan kata sandi': 'Enter your password',
+                'Pilih nama pengguna': 'Choose a username',
+                'Alamat Email': 'Email Address',
+                'Divisi/Departemen': 'Division/Department',
+                'Buat kata sandi yang kuat': 'Create a strong password',
+                'Cari berdasarkan judul atau deskripsi...': 'Search by title or description...',
+                'Buat Akun': 'Create Account',
+                'Belum punya akun?': "Don't have an account?",
+                'Sudah punya akun?': 'Already have an account?',
+                'Kredensial Demo': 'Demo Credentials',
+                'Pengguna:': 'User:',
+                'Daftar': 'Register',
+                'Foto Profil': 'Profile Picture',
+                'Informasi Profil': 'Profile Information',
+                'Simpan Perubahan': 'Save Changes',
+                'Ubah Kata Sandi': 'Change Password',
+                'Perbarui Kata Sandi': 'Update Password',
+                'Permintaan Peran': 'Role Requests',
+                'Kelola Modul Klinik': 'Edit Clinical Module',
+                'Setujui Dokumen Klinik': 'Approve Clinical Docs',
+                'Dokumen Klinik': 'Clinical Docs',
+                'Admin: Modul Klinik': 'Admin: Clinical Module',
+                'Setujui Dokumen Klinik': 'Approve Clinical Docs'
+            }
+        };
+
+        const translateTextNodes = (lang) => {
+            const dict = textTranslations[lang] || {};
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+                acceptNode: (node) => {
+                    const text = node.nodeValue.trim();
+                    if (!text) return NodeFilter.FILTER_REJECT;
+                    const parent = node.parentElement;
+                    if (!parent) return NodeFilter.FILTER_REJECT;
+                    if (parent.closest('[data-i18n],[data-i18n-html]')) return NodeFilter.FILTER_REJECT;
+                    if (['SCRIPT', 'STYLE', 'NOSCRIPT', 'CODE', 'PRE', 'TEXTAREA'].includes(parent.tagName)) {
+                        return NodeFilter.FILTER_REJECT;
+                    }
+                    return dict[text] ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+                }
+            });
+            const nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+            nodes.forEach((node) => {
+                const text = node.nodeValue.trim();
+                if (dict[text]) node.nodeValue = node.nodeValue.replace(text, dict[text]);
+            });
+        };
+
+        const applyTranslations = (lang) => {
+            const dict = {
+                en: { ...baseTranslations.en, ...(window.PAGE_TRANSLATIONS?.en || {}) },
+                id: { ...baseTranslations.id, ...(window.PAGE_TRANSLATIONS?.id || {}) }
+            };
+            const active = dict[lang] ? lang : 'en';
+            document.documentElement.setAttribute('lang', active);
+
+            document.querySelectorAll('[data-i18n]').forEach((el) => {
+                const key = el.getAttribute('data-i18n');
+                const value = dict[active][key];
+                if (value) el.textContent = value;
+            });
+
+            document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                const value = dict[active][key];
+                if (value) el.setAttribute('placeholder', value);
+            });
+
+            document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+                const key = el.getAttribute('data-i18n-title');
+                const value = dict[active][key];
+                if (value) el.setAttribute('title', value);
+            });
+
+            document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+                const key = el.getAttribute('data-i18n-html');
+                const value = dict[active][key];
+                if (value) el.innerHTML = value;
+            });
+
+            document.querySelectorAll('[placeholder]').forEach((el) => {
+                const placeholder = el.getAttribute('placeholder');
+                const value = textTranslations[active]?.[placeholder];
+                if (value) el.setAttribute('placeholder', value);
+            });
+
+            translateTextNodes(active);
+        };
+
+        const storedLang = localStorage.getItem('language') || 'en';
+        if (langSelect) langSelect.value = storedLang;
+        if (langSelectGuest) langSelectGuest.value = storedLang;
+        applyTranslations(storedLang);
+
+        const onLangChange = (e) => {
+            const lang = e.target.value;
+            localStorage.setItem('language', lang);
+            applyTranslations(lang);
+            if (langSelect && langSelect !== e.target) langSelect.value = lang;
+            if (langSelectGuest && langSelectGuest !== e.target) langSelectGuest.value = lang;
+        };
+
+        if (langSelect) langSelect.addEventListener('change', onLangChange);
+        if (langSelectGuest) langSelectGuest.addEventListener('change', onLangChange);
         
         // Admin Dropdown Toggle
         function toggleAdminDropdown() {

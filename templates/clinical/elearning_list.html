@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}E-Learning Modules - E-Leary{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 py-12">
+    <div class="max-w-6xl mx-auto px-4">
+        <h1 class="text-4xl font-bold text-slate-900 dark:text-white mb-2 text-center">Clinical E-Learning</h1>
+        <p class="text-center text-slate-600 dark:text-slate-300 mb-8">Complete all clinical courses before taking the post-test</p>
+
+        {% if courses %}
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for course in courses %}
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all flex flex-col">
+                <div class="h-36 bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center relative">
+                    {% if course.thumbnail_url %}
+                        <img src="{{ course.thumbnail_url }}" alt="{{ course.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <svg class="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    {% endif %}
+                    {% if course.id in enrolled_course_ids %}
+                    <div class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow">
+                        Enrolled
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="p-6 flex flex-col flex-1">
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">{{ course.title }}</h3>
+                    {% if course.description %}
+                        <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">{{ (course.description|striptags)[:120] }}...</p>
+                    {% endif %}
+                    <div class="mt-auto">
+                        {% if course.id in enrolled_course_ids %}
+                            <a href="{{ url_for('course_detail', course_id=course.id) }}" class="block w-full text-center bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg transition-colors">
+                                Open Course
+                            </a>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('enroll_course', course_id=course.id) }}">
+                                <button type="submit" class="w-full text-center bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg transition-colors">
+                                    Enroll &amp; Open
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">No clinical courses yet</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Ask an admin to configure clinical e-learning courses.</p>
+        </div>
+        {% endif %}
+
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('clinical_onboarding') }}" class="inline-flex items-center gap-2 text-teal-600 dark:text-teal-400 hover:underline">
+                ← Back to Onboarding
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
