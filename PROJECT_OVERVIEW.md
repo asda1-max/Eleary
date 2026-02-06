@@ -138,6 +138,7 @@ Error Pages
 Frontend
 ├── HTML5
 ├── Tailwind CSS (CDN)
+├── Vanilla JS
 └── SVG Icons
 
 Backend
@@ -145,7 +146,9 @@ Backend
 ├── Flask 2.3.2
 ├── Flask-SQLAlchemy 3.0.5
 ├── Flask-Login 0.6.2
-└── Werkzeug 2.3.6
+├── Werkzeug 2.3.6
+├── Jinja2 Templates
+└── bleach 6.1.0
 
 Database
 ├── SQLite3
@@ -153,8 +156,8 @@ Database
 
 Security
 ├── Password hashing (Werkzeug)
-├── Session management
-├── CSRF protection
+├── Session management (Flask-Login)
+├── HTML sanitization (bleach)
 └── File validation
 ```
 

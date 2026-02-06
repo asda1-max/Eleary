@@ -268,11 +268,11 @@ Once onboarding is complete:
    - Incident pattern analysis
 
 ### Technical Improvements
-- **Background Jobs** (Celery) for PDF generation
-- **Real-time Updates** (WebSockets) for supervisor notifications
-- **API Documentation** (Swagger/OpenAPI)
+- **Background Jobs** using scheduled scripts (cron + Flask CLI)
+- **Status Updates** via periodic polling with existing routes
+- **API Documentation** in Markdown and route docstrings
 - **Unit Tests** for critical workflows
-- **Docker Deployment** for easy setup
+- **Standard Deployment** with virtualenv and WSGI server
 
 ---
 
