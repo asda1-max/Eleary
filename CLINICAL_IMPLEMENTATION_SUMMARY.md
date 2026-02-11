@@ -224,10 +224,8 @@ cd /home/azeroth/Productivity/Projects/Eleary
 ./venv/bin/python app.py
 ```
 
-### 2. **Login Credentials**
-- **Admin**: `admin` / `admin123`
-- **Instructor**: `dr_ahmad` / `password123`
-- **User**: `siti_nurse` / `password123`
+### 2. **First Admin Setup**
+- Create the initial admin at `/setup-admin`
 
 ### 3. **Student Registration Flow**
 1. Login as a user

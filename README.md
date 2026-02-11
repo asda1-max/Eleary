@@ -170,7 +170,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. **Initialize database with sample data**
+4. **Initialize database**
 ```bash
 python app.py
 ```
@@ -178,7 +178,7 @@ python app.py
 This will:
 - Create `eleary.db` SQLite database
 - Create all tables
-- Populate with sample data (admin user, courses, materials)
+- Populate clinical platform defaults (no demo users)
 
 5. **Run the application**
 ```bash
@@ -187,19 +187,9 @@ python app.py
 
 The app will run at `http://localhost:5000`
 
-## Default Credentials
+## First Admin Setup
 
-### Admin Account
-- **Username**: `admin`
-- **Password**: `admin123`
-
-### Sample Instructor (Pemateri)
-- **Username**: `dr_ahmad`
-- **Password**: `password123`
-
-### Sample User
-- **Username**: `siti_nurse`
-- **Password**: `password123`
+On first launch, the app will prompt you to create the initial admin account at `/setup-admin`.
 
 ## API Routes
 

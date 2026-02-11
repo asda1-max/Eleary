@@ -167,7 +167,7 @@ Eleary/
 ✅ Command line examples
 ✅ Common tasks with steps
 ✅ Quick troubleshooting
-✅ Sample credentials
+✅ First admin setup
 ```
 
 ### README.md (Complete & Detailed)
@@ -225,7 +225,7 @@ Eleary/
    - Open http://localhost:5000
 
 4. **Test Features**
-   - Use sample credentials
+   - Create the initial admin at `/setup-admin`
    - Follow "Common Tasks" in [QUICKSTART.md](QUICKSTART.md)
 
 5. **Learn More**
@@ -236,11 +236,8 @@ Eleary/
 
 ## 💡 Quick References
 
-### Default Credentials
-```
-Admin:   admin / admin123
-User:    dr_ahmad / password123
-```
+### First Admin Setup
+Create the initial admin at `/setup-admin`.
 
 ### Key Locations
 ```

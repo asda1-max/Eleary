@@ -6,6 +6,48 @@ from models import db, User, Course, CourseEnrollment, News, StudentProfile
 
 
 def register_auth_routes(app):
+    @app.route('/setup-admin', methods=['GET', 'POST'])
+    def setup_admin():
+        """Create the first admin account on initial launch."""
+        if User.query.filter_by(role='admin').first():
+            return redirect(url_for('login'))
+
+        if request.method == 'POST':
+            setup_password = request.form.get('setup_password', '')
+            username = request.form.get('username', '').strip()
+            password = request.form.get('password', '')
+            confirm_password = request.form.get('confirm_password', '')
+
+            if setup_password != current_app.config.get('APP_SETUP_PASSWORD'):
+                flash('Invalid setup password.', 'danger')
+                return redirect(url_for('setup_admin'))
+
+            if not username or not password:
+                flash('Username and password are required.', 'danger')
+                return redirect(url_for('setup_admin'))
+
+            if password != confirm_password:
+                flash('Passwords do not match.', 'danger')
+                return redirect(url_for('setup_admin'))
+
+            if User.query.filter_by(username=username).first():
+                flash('Username already exists.', 'danger')
+                return redirect(url_for('setup_admin'))
+
+            email = f"{username}@eleary.local"
+            if User.query.filter_by(email=email).first():
+                flash('Email already exists.', 'danger')
+                return redirect(url_for('setup_admin'))
+
+            admin = User(username=username, email=email, role='admin', division='Administration')
+            admin.set_password(password)
+            db.session.add(admin)
+            db.session.commit()
+            flash('Admin account created. Please log in.', 'success')
+            return redirect(url_for('login'))
+
+        return render_template('setup_admin.html')
+
     @app.route('/')
     def index():
         """Home/Dashboard page."""

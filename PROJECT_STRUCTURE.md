@@ -73,7 +73,7 @@ Eleary/
 - Tailwind CSS styling base
 
 **Authentication Templates**
-- `login.html` - Clean login form with demo credentials
+- `login.html` - Clean login form
 - `register.html` - Registration form with division selection
 
 **User Templates**
@@ -318,14 +318,7 @@ POST      /admin/users/<id>/delete            → delete_user()
 
 The `init_db()` function in `app.py` automatically:
 1. Creates all tables with new schema (pending_role field, instructor_id FK, Mahasiswa/Koas division)
-2. Creates sample data:
-   - 1 admin user (admin/admin123)
-   - 1 pemateri user (dr_ahmad/password123, approved instructor)
-   - 1 regular user (siti_nurse/password123)
-   - 3 sample courses created by different instructors (Medical, IT, Admin categories)
-   - 3 modules for first course
-   - 3 materials across modules
-   - 2 approved library books
+2. Creates clinical platform defaults (no demo users)
 3. Note: Old database must be deleted if schema has changed (`rm instance/eleary.db`)
 
 ## Security Features

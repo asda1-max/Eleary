@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Case - {{ patient_case.case_title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 py-12">
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-200 dark:border-slate-700">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-900 dark:text-white">{{ patient_case.case_title }}</h1>
+                    <p class="text-slate-600 dark:text-slate-300">Long-term patient tracking</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    {% if patient_case.status == 'closed' %}
+                    <span class="px-4 py-2 bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200 font-semibold rounded-full">Closed</span>
+                    {% else %}
+                    <span class="px-4 py-2 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 font-semibold rounded-full">Active</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Patient Alias</p>
+                    <p class="text-lg font-semibold text-slate-900 dark:text-white">{{ patient_case.patient_alias or '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Unit</p>
+                    <p class="text-lg font-semibold text-slate-900 dark:text-white">{{ patient_case.unit or '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Start Date</p>
+                    <p class="text-lg font-semibold text-slate-900 dark:text-white">{{ patient_case.start_date.strftime('%Y-%m-%d') }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">End Date</p>
+                    <p class="text-lg font-semibold text-slate-900 dark:text-white">{{ patient_case.end_date.strftime('%Y-%m-%d') if patient_case.end_date else '-' }}</p>
+                </div>
+                <div class="md:col-span-2">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Initial Diagnosis</p>
+                    <p class="text-lg font-semibold text-slate-900 dark:text-white">{{ patient_case.initial_diagnosis or '-' }}</p>
+                </div>
+            </div>
+
+            {% if patient_case.initial_notes %}
+            <div class="mb-8">
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Initial Notes</p>
+                <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                    <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ patient_case.initial_notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if patient_case.status != 'closed' %}
+            <div class="mb-10">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Add Daily Update</h2>
+                <form method="POST" action="{{ url_for('clinical_case_update', case_id=patient_case.id) }}" class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Date</label>
+                            <input type="date" name="entry_date" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Status</label>
+                            <select name="status" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 dark:text-white">
+                                <option value="">Select Status</option>
+                                <option value="improving">Improving</option>
+                                <option value="stable">Stable</option>
+                                <option value="worsening">Worsening</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Daily Summary</label>
+                        <textarea name="update_summary" rows="4" required placeholder="What happened today? Include key findings and progress." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 dark:text-white"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Interventions</label>
+                        <textarea name="interventions" rows="3" placeholder="Treatments, procedures, or medications" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 dark:text-white"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Patient Response</label>
+                        <textarea name="patient_response" rows="3" placeholder="How did the patient respond?" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 dark:text-white"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Follow-Up Plan</label>
+                        <textarea name="follow_up_plan" rows="3" placeholder="Plans for next control or discharge" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 dark:text-white"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Next Control Date</label>
+                        <input type="date" name="next_control_date" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 dark:text-white">
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" class="px-6 py-3 rounded-lg bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold hover:from-teal-700 hover:to-cyan-700">Save Update</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Daily Updates</h2>
+                <div class="space-y-6">
+                    {% for update in updates %}
+                    <div class="p-5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                            <div class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ update.entry_date.strftime('%Y-%m-%d') }}</div>
+                            {% if update.status %}
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                                {{ update.status|capitalize }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ update.update_summary }}</p>
+                        {% if update.interventions %}
+                        <div class="mt-4">
+                            <p class="text-xs uppercase text-slate-500 dark:text-slate-400 mb-1">Interventions</p>
+                            <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ update.interventions }}</p>
+                        </div>
+                        {% endif %}
+                        {% if update.patient_response %}
+                        <div class="mt-4">
+                            <p class="text-xs uppercase text-slate-500 dark:text-slate-400 mb-1">Patient Response</p>
+                            <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ update.patient_response }}</p>
+                        </div>
+                        {% endif %}
+                        {% if update.follow_up_plan %}
+                        <div class="mt-4">
+                            <p class="text-xs uppercase text-slate-500 dark:text-slate-400 mb-1">Follow-Up Plan</p>
+                            <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ update.follow_up_plan }}</p>
+                        </div>
+                        {% endif %}
+                        {% if update.next_control_date %}
+                        <div class="mt-4 text-sm text-slate-600 dark:text-slate-400">
+                            Next control: <span class="font-semibold">{{ update.next_control_date.strftime('%Y-%m-%d') }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="p-6 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-center text-slate-500 dark:text-slate-400">
+                        No updates yet. Add the first daily update above.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3 justify-between items-center">
+                <a href="{{ url_for('clinical_cases') }}" class="px-5 py-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">Back to Cases</a>
+                {% if patient_case.status != 'closed' %}
+                <form method="POST" action="{{ url_for('clinical_case_close', case_id=patient_case.id) }}" class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <input type="date" name="end_date" class="px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200">
+                    <button type="submit" class="px-5 py-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold">Close Case</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
