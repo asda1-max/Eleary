@@ -31,12 +31,44 @@ def get_clinical_config():
             ]),
             required_course_ids_json=json.dumps([]),
             pretest_questions_json=json.dumps([
-                {'id': 1, 'question': 'What are the 6 patient safety goals?', 'options': ['A', 'B', 'C', 'D']},
-                {'id': 2, 'question': 'What does K3RS stand for?', 'options': ['A', 'B', 'C', 'D']}
+                {
+                    'id': 1,
+                    'question': 'Which action is most important before touching a patient?',
+                    'options': ['Hand hygiene', 'Adjust bed', 'Write notes', 'Check phone'],
+                    'correct_option': 'Hand hygiene'
+                },
+                {
+                    'id': 2,
+                    'question': 'What should you do if your ID badge is missing?',
+                    'options': ['Report to supervisor', 'Borrow a friend’s badge', 'Ignore it', 'Leave the unit'],
+                    'correct_option': 'Report to supervisor'
+                },
+                {
+                    'id': 3,
+                    'question': 'Which item is part of basic PPE?',
+                    'options': ['Gloves', 'Necklace', 'Perfume', 'Watch'],
+                    'correct_option': 'Gloves'
+                }
             ]),
             posttest_questions_json=json.dumps([
-                {'id': 1, 'question': 'How do you report a patient safety incident?', 'options': ['A', 'B', 'C', 'D']},
-                {'id': 2, 'question': 'Which steps are required for infection control?', 'options': ['A', 'B', 'C', 'D']}
+                {
+                    'id': 1,
+                    'question': 'When should you perform hand hygiene?',
+                    'options': ['Before and after patient contact', 'Only after meals', 'Only at shift end', 'Once per day'],
+                    'correct_option': 'Before and after patient contact'
+                },
+                {
+                    'id': 2,
+                    'question': 'Which is the correct way to dispose of sharps?',
+                    'options': ['Place in a sharps container', 'Throw in regular trash', 'Leave on tray', 'Wrap in tissue'],
+                    'correct_option': 'Place in a sharps container'
+                },
+                {
+                    'id': 3,
+                    'question': 'If you witness a safety incident, what is the first step?',
+                    'options': ['Ensure patient safety', 'Post on chat', 'Finish other tasks', 'Ignore it'],
+                    'correct_option': 'Ensure patient safety'
+                }
             ])
         )
         db.session.add(config)
@@ -602,21 +634,55 @@ def register_clinical_routes(app):
         ).all()
 
         last_update_map = {}
+        case_tree_map = {}
         for case in cases:
             latest_update = PatientCaseDailyUpdate.query.filter_by(case_id=case.id).order_by(
                 PatientCaseDailyUpdate.entry_date.desc()
             ).first()
             last_update_map[case.id] = latest_update.entry_date if latest_update else None
 
+            updates = PatientCaseDailyUpdate.query.filter_by(case_id=case.id).order_by(
+                PatientCaseDailyUpdate.entry_date.asc()
+            ).all()
+
+            nodes = []
+            nodes.append({
+                'label': 'Day 1',
+                'date': case.start_date,
+                'status': 'Start',
+                'summary': case.initial_diagnosis or case.initial_notes
+            })
+
+            for update in updates:
+                day_number = (update.entry_date - case.start_date).days + 1
+                nodes.append({
+                    'label': f'Day {day_number}',
+                    'date': update.entry_date,
+                    'status': update.status or 'Update',
+                    'summary': update.update_summary
+                })
+
+            if case.status == 'closed':
+                closed_date = case.end_date or (updates[-1].entry_date if updates else case.updated_at.date())
+                nodes.append({
+                    'label': 'Done',
+                    'date': closed_date,
+                    'status': 'Closed',
+                    'summary': None
+                })
+
+            case_tree_map[case.id] = nodes
+
         active_count = PatientCase.query.filter_by(student_id=profile.id, status='active').count()
         closed_count = PatientCase.query.filter_by(student_id=profile.id, status='closed').count()
 
         return render_template('clinical/cases_list.html',
-                     profile=profile,
-                     cases=cases,
-                     active_count=active_count,
-                     closed_count=closed_count,
-                     last_update_map=last_update_map)
+                 profile=profile,
+                 cases=cases,
+                 active_count=active_count,
+                 closed_count=closed_count,
+                 last_update_map=last_update_map,
+                 case_tree_map=case_tree_map)
 
     @app.route('/clinical/cases/add', methods=['GET', 'POST'])
     @login_required

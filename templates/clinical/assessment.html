@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Clinical Assessment - E-Leary{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white mb-2">
+                <span class="bg-gradient-to-r from-amber-600 to-rose-600 bg-clip-text text-transparent">
+                    {{ 'Pre-Test' if assessment_type == 'pretest' else 'Post-Test' }} Assessment
+                </span>
+            </h1>
+            <p class="text-slate-600 dark:text-slate-300">Answer all questions and submit your assessment.</p>
+        </div>
+
+        {% if passed_attempt %}
+        <div class="mb-6 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-emerald-800 dark:text-emerald-200">
+            You already passed this assessment with {{ passed_attempt.score }}% on {{ passed_attempt.taken_at.strftime('%Y-%m-%d') }}. You may retake if needed.
+        </div>
+        {% endif %}
+
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="text-sm text-slate-600 dark:text-slate-300">
+                        Passing Score: <span class="font-semibold text-slate-900 dark:text-white">80%</span>
+                    </div>
+                    <div class="text-sm text-slate-600 dark:text-slate-300">
+                        Total Questions: <span class="font-semibold text-slate-900 dark:text-white">{{ questions|length }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" class="p-6 space-y-6" id="assessment-form">
+                <input type="hidden" name="answers_json" id="answers_json" value="{}" />
+                <input type="hidden" name="correct_answers" id="correct_answers" value="0" />
+                <input type="hidden" name="total_questions" id="total_questions" value="{{ questions|length }}" />
+
+                {% for q in questions %}
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-5" data-question-id="{{ q.id }}" data-correct="{{ q.correct_option or q.answer or q.correct or '' }}">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold">
+                            {{ loop.index }}
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-slate-900 dark:text-white font-semibold mb-3">{{ q.question }}</p>
+                            <div class="grid gap-2">
+                                {% for option in q.options %}
+                                <label class="flex items-center gap-3 rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer">
+                                    <input type="radio" name="q_{{ q.id }}" value="{{ option }}" class="text-amber-600 focus:ring-amber-500" required />
+                                    <span class="text-slate-700 dark:text-slate-200">{{ option }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                    <a href="{{ url_for('clinical_onboarding') }}" class="text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 font-medium">Back to Onboarding</a>
+                    <button type="submit" class="bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-700 hover:to-rose-700 text-white font-semibold px-6 py-3 rounded-lg transition-all">
+                        Submit Assessment
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if previous_attempts and previous_attempts|length > 0 %}
+        <div class="mt-8 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Previous Attempts</h2>
+            <div class="space-y-2">
+                {% for attempt in previous_attempts %}
+                <div class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-2">
+                    <div class="text-sm text-slate-600 dark:text-slate-300">
+                        Attempt {{ attempt.attempt_number }} • {{ attempt.taken_at.strftime('%Y-%m-%d') }}
+                    </div>
+                    <div class="text-sm font-semibold {{ 'text-emerald-600 dark:text-emerald-400' if attempt.passed else 'text-amber-600 dark:text-amber-400' }}">
+                        {{ attempt.score }}% {{ 'Passed' if attempt.passed else 'Not Passed' }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('assessment-form');
+    if (form) {
+        form.addEventListener('submit', (event) => {
+            const answers = {};
+            let correctCount = 0;
+            const questionBlocks = form.querySelectorAll('[data-question-id]');
+
+            questionBlocks.forEach((block) => {
+                const questionId = block.getAttribute('data-question-id');
+                const correctValue = (block.getAttribute('data-correct') || '').trim();
+                const selected = block.querySelector('input[type="radio"]:checked');
+                if (selected) {
+                    answers[questionId] = selected.value;
+                    if (correctValue && selected.value === correctValue) {
+                        correctCount += 1;
+                    }
+                }
+            });
+
+            document.getElementById('answers_json').value = JSON.stringify(answers);
+            document.getElementById('correct_answers').value = String(correctCount);
+        });
+    }
+</script>
+{% endblock %}

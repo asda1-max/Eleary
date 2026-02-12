@@ -29,12 +29,44 @@ def init_db(app):
             ]),
             required_course_ids_json=json.dumps([]),
             pretest_questions_json=json.dumps([
-                {'id': 1, 'question': 'What are the 6 patient safety goals?', 'options': ['A', 'B', 'C', 'D']},
-                {'id': 2, 'question': 'What does K3RS stand for?', 'options': ['A', 'B', 'C', 'D']}
+                {
+                    'id': 1,
+                    'question': 'Which action is most important before touching a patient?',
+                    'options': ['Hand hygiene', 'Adjust bed', 'Write notes', 'Check phone'],
+                    'correct_option': 'Hand hygiene'
+                },
+                {
+                    'id': 2,
+                    'question': 'What should you do if your ID badge is missing?',
+                    'options': ['Report to supervisor', 'Borrow a friend’s badge', 'Ignore it', 'Leave the unit'],
+                    'correct_option': 'Report to supervisor'
+                },
+                {
+                    'id': 3,
+                    'question': 'Which item is part of basic PPE?',
+                    'options': ['Gloves', 'Necklace', 'Perfume', 'Watch'],
+                    'correct_option': 'Gloves'
+                }
             ]),
             posttest_questions_json=json.dumps([
-                {'id': 1, 'question': 'How do you report a patient safety incident?', 'options': ['A', 'B', 'C', 'D']},
-                {'id': 2, 'question': 'Which steps are required for infection control?', 'options': ['A', 'B', 'C', 'D']}
+                {
+                    'id': 1,
+                    'question': 'When should you perform hand hygiene?',
+                    'options': ['Before and after patient contact', 'Only after meals', 'Only at shift end', 'Once per day'],
+                    'correct_option': 'Before and after patient contact'
+                },
+                {
+                    'id': 2,
+                    'question': 'Which is the correct way to dispose of sharps?',
+                    'options': ['Place in a sharps container', 'Throw in regular trash', 'Leave on tray', 'Wrap in tissue'],
+                    'correct_option': 'Place in a sharps container'
+                },
+                {
+                    'id': 3,
+                    'question': 'If you witness a safety incident, what is the first step?',
+                    'options': ['Ensure patient safety', 'Post on chat', 'Finish other tasks', 'Ignore it'],
+                    'correct_option': 'Ensure patient safety'
+                }
             ])
         )
         db.session.add(default_config)
