@@ -274,12 +274,8 @@ Desktop:  > 1024px (3 columns)
 
 ## 📋 Sample Data Included
 
-### Test Users (3)
-```
-User: admin      | Password: admin123    | Role: Admin
-User: dr_ahmad   | Password: password123 | Role: User
-User: siti_nurse | Password: password123 | Role: User
-```
+### First Admin Setup
+Create the initial admin at `/setup-admin`.
 
 ### Sample Courses (3)
 ```
@@ -446,7 +442,7 @@ The project includes:
    ```
 
 2. **Test** (10 minutes)
-   - Login with admin/admin123
+   - Create the initial admin at `/setup-admin`
    - Browse sample courses
    - Try creating a course
    - Upload a document

@@ -21,7 +21,7 @@
                 </div>
                 <div id="doc-list" class="space-y-4">
                     {% for doc in documents %}
-                    <div class="grid md:grid-cols-3 gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div class="doc-item grid md:grid-cols-3 gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 relative">
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Type</label>
                             <input type="text" name="doc_type[]" value="{{ doc.type }}" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white" placeholder="referral">
@@ -36,6 +36,7 @@
                                 <span class="text-sm text-slate-600 dark:text-slate-300">Requires expiration</span>
                             </label>
                         </div>
+                        <button type="button" class="doc-remove absolute top-3 right-3 text-xs px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100">Delete</button>
                     </div>
                     {% endfor %}
                 </div>
@@ -49,7 +50,7 @@
                 </div>
                 <div id="agreement-list" class="space-y-4">
                     {% for agreement in agreements %}
-                    <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                    <div class="agreement-item p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 relative">
                         <div class="grid md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Type</label>
@@ -64,6 +65,7 @@
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Agreement Text</label>
                             <textarea name="agreement_text[]" rows="4" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white">{{ agreement.text }}</textarea>
                         </div>
+                        <button type="button" class="agreement-remove absolute top-3 right-3 text-xs px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100">Delete</button>
                     </div>
                     {% endfor %}
                 </div>
@@ -125,9 +127,24 @@
 
     syncDocTypeInputs(docList);
 
+    const bindRemoveButtons = (container) => {
+        container.querySelectorAll('.doc-remove').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.target.closest('.doc-item')?.remove();
+            });
+        });
+        container.querySelectorAll('.agreement-remove').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.target.closest('.agreement-item')?.remove();
+            });
+        });
+    };
+
+    bindRemoveButtons(document);
+
     document.getElementById('add-doc')?.addEventListener('click', () => {
         const wrapper = document.createElement('div');
-        wrapper.className = 'grid md:grid-cols-3 gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-700';
+        wrapper.className = 'doc-item grid md:grid-cols-3 gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 relative';
         wrapper.innerHTML = `
             <div>
                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Type</label>
@@ -143,14 +160,16 @@
                     <span class="text-sm text-slate-600 dark:text-slate-300">Requires expiration</span>
                 </label>
             </div>
+            <button type="button" class="doc-remove absolute top-3 right-3 text-xs px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100">Delete</button>
         `;
         syncDocTypeInputs(wrapper);
+        bindRemoveButtons(wrapper);
         docList.appendChild(wrapper);
     });
 
     document.getElementById('add-agreement')?.addEventListener('click', () => {
         const wrapper = document.createElement('div');
-        wrapper.className = 'p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4';
+        wrapper.className = 'agreement-item p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 relative';
         wrapper.innerHTML = `
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
@@ -166,7 +185,9 @@
                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Agreement Text</label>
                 <textarea name="agreement_text[]" rows="4" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white"></textarea>
             </div>
+            <button type="button" class="agreement-remove absolute top-3 right-3 text-xs px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100">Delete</button>
         `;
+        bindRemoveButtons(wrapper);
         agreementList.appendChild(wrapper);
     });
 </script>

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Setup Admin - E-Leary{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-teal-300/10 dark:bg-teal-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-40 right-20 w-96 h-96 bg-emerald-300/10 dark:bg-emerald-500/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-slate-200/50 dark:shadow-slate-900/50 p-8 md:p-12 max-w-md w-full relative z-10 border border-slate-200/50 dark:border-slate-700/50 animate-fade-in">
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-6">
+                <div class="w-20 h-20 bg-gradient-to-br from-teal-400 via-emerald-400 to-teal-500 rounded-3xl flex items-center justify-center shadow-xl shadow-teal-400/30 dark:shadow-teal-500/20 flex-shrink-0">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">E-Leary</h1>
+            <p class="text-slate-600 dark:text-slate-400 font-medium" data-i18n="setup_admin_title">Create First Admin</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-2" data-i18n="setup_admin_subtitle">Set the username and password for the initial administrator.</p>
+        </div>
+
+        <form method="POST" class="space-y-5">
+            <div>
+                <label for="setup_password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" data-i18n="setup_admin_setup_password">App Setup Password</label>
+                <input type="password" id="setup_password" name="setup_password" required
+                       class="w-full px-4 py-3.5 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all bg-white/80 dark:bg-slate-700/50 dark:text-white"
+                       placeholder="Enter app setup password" data-i18n-placeholder="setup_admin_setup_password_placeholder">
+            </div>
+
+            <div>
+                <label for="username" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" data-i18n="setup_admin_username">Username</label>
+                <input type="text" id="username" name="username" required
+                       class="w-full px-4 py-3.5 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all bg-white/80 dark:bg-slate-700/50 dark:text-white"
+                       placeholder="Enter admin username" data-i18n-placeholder="setup_admin_username_placeholder">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" data-i18n="setup_admin_password">Password</label>
+                <input type="password" id="password" name="password" required
+                       class="w-full px-4 py-3.5 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all bg-white/80 dark:bg-slate-700/50 dark:text-white"
+                       placeholder="Create a strong password" data-i18n-placeholder="setup_admin_password_placeholder">
+            </div>
+
+            <div>
+                <label for="confirm_password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" data-i18n="setup_admin_confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required
+                       class="w-full px-4 py-3.5 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all bg-white/80 dark:bg-slate-700/50 dark:text-white"
+                       placeholder="Confirm your password" data-i18n-placeholder="setup_admin_confirm_password_placeholder">
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 dark:from-teal-600 dark:to-emerald-600 dark:hover:from-teal-700 dark:hover:to-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 dark:shadow-teal-500/20 transition-all duration-300 flex items-center justify-center gap-2 text-lg group transform hover:scale-105 active:scale-95">
+                <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4zm-6 9h12a2 2 0 002-2v-1a6 6 0 00-6-6H8a6 6 0 00-6 6v1a2 2 0 002 2z"/>
+                </svg>
+                <span data-i18n="setup_admin_create">Create Admin</span>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.PAGE_TRANSLATIONS = {
+        en: {
+            setup_admin_title: 'Create First Admin',
+            setup_admin_subtitle: 'Set the username and password for the initial administrator.',
+            setup_admin_setup_password: 'App Setup Password',
+            setup_admin_setup_password_placeholder: 'Enter app setup password',
+            setup_admin_username: 'Username',
+            setup_admin_username_placeholder: 'Enter admin username',
+            setup_admin_password: 'Password',
+            setup_admin_password_placeholder: 'Create a strong password',
+            setup_admin_confirm_password: 'Confirm Password',
+            setup_admin_confirm_password_placeholder: 'Confirm your password',
+            setup_admin_create: 'Create Admin'
+        },
+        id: {
+            setup_admin_title: 'Buat Admin Pertama',
+            setup_admin_subtitle: 'Tetapkan nama pengguna dan kata sandi untuk admin pertama.',
+            setup_admin_setup_password: 'Kata Sandi Setup Aplikasi',
+            setup_admin_setup_password_placeholder: 'Masukkan kata sandi setup aplikasi',
+            setup_admin_username: 'Nama Pengguna',
+            setup_admin_username_placeholder: 'Masukkan nama pengguna admin',
+            setup_admin_password: 'Kata Sandi',
+            setup_admin_password_placeholder: 'Buat kata sandi yang kuat',
+            setup_admin_confirm_password: 'Konfirmasi Kata Sandi',
+            setup_admin_confirm_password_placeholder: 'Konfirmasi kata sandi Anda',
+            setup_admin_create: 'Buat Admin'
+        }
+    };
+</script>
+{% endblock %}

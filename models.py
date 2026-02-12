@@ -420,6 +420,57 @@ class LogbookEntry(db.Model):
         return f'<LogbookEntry {self.procedure_name} Student:{self.student_id}>'
 
 
+class PatientCase(db.Model):
+    """
+    Long-term patient case tracking for clinical students.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student_profile.id'), nullable=False, index=True)
+    case_title = db.Column(db.String(255), nullable=False)
+    patient_alias = db.Column(db.String(100), nullable=True)  # Anonymized patient identifier
+    unit = db.Column(db.String(100), nullable=True)
+    initial_diagnosis = db.Column(db.String(255), nullable=True)
+    start_date = db.Column(db.Date, nullable=False, index=True)
+    end_date = db.Column(db.Date, nullable=True)
+    status = db.Column(db.String(20), default='active', index=True)  # 'active', 'closed'
+    initial_notes = db.Column(db.Text, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    student = db.relationship('StudentProfile', backref='patient_cases', lazy=True)
+
+    def __repr__(self):
+        return f'<PatientCase {self.case_title} Student:{self.student_id}>'
+
+
+class PatientCaseDailyUpdate(db.Model):
+    """
+    Daily follow-up updates for a patient case.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    case_id = db.Column(db.Integer, db.ForeignKey('patient_case.id'), nullable=False, index=True)
+    entry_date = db.Column(db.Date, nullable=False, index=True)
+    status = db.Column(db.String(20), nullable=True)  # 'improving', 'stable', 'worsening', 'resolved'
+    update_summary = db.Column(db.Text, nullable=False)
+    interventions = db.Column(db.Text, nullable=True)
+    patient_response = db.Column(db.Text, nullable=True)
+    follow_up_plan = db.Column(db.Text, nullable=True)
+    next_control_date = db.Column(db.Date, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    patient_case = db.relationship('PatientCase', backref='daily_updates', lazy=True)
+
+    __table_args__ = (db.UniqueConstraint('case_id', 'entry_date', name='uq_case_daily_update'),)
+
+    def __repr__(self):
+        return f'<PatientCaseDailyUpdate Case:{self.case_id} Date:{self.entry_date}>'
+
+
 class CompetencyChecklist(db.Model):
     """
     Competency requirements per program.

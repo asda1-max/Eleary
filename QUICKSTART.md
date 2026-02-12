@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
-This creates `eleary.db` with sample data.
+This creates `eleary.db` and clinical platform defaults (no demo users).
 
 ### Step 3: Run Application (1 min)
 ```bash
@@ -22,9 +22,9 @@ python app.py
 ```
 Open: http://localhost:5000
 
-### Step 4: Login (1 min)
-- **Admin**: `admin` / `admin123`
-- **User**: `dr_ahmad` / `password123`
+### Step 4: Create First Admin (1 min)
+- Open: http://localhost:5000/setup-admin
+- Set the initial admin username and password
 
 ---
 

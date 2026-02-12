@@ -2,7 +2,8 @@ from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from models import (db, User, StudentProfile, LegalDocument, DigitalAgreement, ClinicalConfig,
                     Course, CourseEnrollment, PreClinicalAssessment,
-                    LogbookEntry, CompetencyChecklist, CompetencyProgress, DailyJournal,
+                    LogbookEntry, PatientCase, PatientCaseDailyUpdate,
+                    CompetencyChecklist, CompetencyProgress, DailyJournal,
                     WeeklyAssessment, FinalExam, Evaluation360, ClinicalCertificate,
                     IncidentReport, StudentFeedback, AlumniProfile, SupervisorValidationPIN)
 from app.utils import save_upload_image, allowed_file
@@ -30,12 +31,44 @@ def get_clinical_config():
             ]),
             required_course_ids_json=json.dumps([]),
             pretest_questions_json=json.dumps([
-                {'id': 1, 'question': 'What are the 6 patient safety goals?', 'options': ['A', 'B', 'C', 'D']},
-                {'id': 2, 'question': 'What does K3RS stand for?', 'options': ['A', 'B', 'C', 'D']}
+                {
+                    'id': 1,
+                    'question': 'Which action is most important before touching a patient?',
+                    'options': ['Hand hygiene', 'Adjust bed', 'Write notes', 'Check phone'],
+                    'correct_option': 'Hand hygiene'
+                },
+                {
+                    'id': 2,
+                    'question': 'What should you do if your ID badge is missing?',
+                    'options': ['Report to supervisor', 'Borrow a friend’s badge', 'Ignore it', 'Leave the unit'],
+                    'correct_option': 'Report to supervisor'
+                },
+                {
+                    'id': 3,
+                    'question': 'Which item is part of basic PPE?',
+                    'options': ['Gloves', 'Necklace', 'Perfume', 'Watch'],
+                    'correct_option': 'Gloves'
+                }
             ]),
             posttest_questions_json=json.dumps([
-                {'id': 1, 'question': 'How do you report a patient safety incident?', 'options': ['A', 'B', 'C', 'D']},
-                {'id': 2, 'question': 'Which steps are required for infection control?', 'options': ['A', 'B', 'C', 'D']}
+                {
+                    'id': 1,
+                    'question': 'When should you perform hand hygiene?',
+                    'options': ['Before and after patient contact', 'Only after meals', 'Only at shift end', 'Once per day'],
+                    'correct_option': 'Before and after patient contact'
+                },
+                {
+                    'id': 2,
+                    'question': 'Which is the correct way to dispose of sharps?',
+                    'options': ['Place in a sharps container', 'Throw in regular trash', 'Leave on tray', 'Wrap in tissue'],
+                    'correct_option': 'Place in a sharps container'
+                },
+                {
+                    'id': 3,
+                    'question': 'If you witness a safety incident, what is the first step?',
+                    'options': ['Ensure patient safety', 'Post on chat', 'Finish other tasks', 'Ignore it'],
+                    'correct_option': 'Ensure patient safety'
+                }
             ])
         )
         db.session.add(config)
@@ -584,6 +617,207 @@ def register_clinical_routes(app):
         
         flash('Logbook entry validated successfully!', 'success')
         return jsonify({'success': True, 'message': 'Entry validated successfully.'})
+
+    # ==================== LONG-TERM LEARNING (PATIENT CASE TRACKING) ====================
+
+    @app.route('/clinical/cases')
+    @login_required
+    def clinical_cases():
+        """List patient cases for long-term learning."""
+        profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        if not profile:
+            flash('Please complete your student profile first.', 'warning')
+            return redirect(url_for('clinical_student_registration'))
+
+        cases = PatientCase.query.filter_by(student_id=profile.id).order_by(
+            PatientCase.updated_at.desc()
+        ).all()
+
+        last_update_map = {}
+        case_tree_map = {}
+        for case in cases:
+            latest_update = PatientCaseDailyUpdate.query.filter_by(case_id=case.id).order_by(
+                PatientCaseDailyUpdate.entry_date.desc()
+            ).first()
+            last_update_map[case.id] = latest_update.entry_date if latest_update else None
+
+            updates = PatientCaseDailyUpdate.query.filter_by(case_id=case.id).order_by(
+                PatientCaseDailyUpdate.entry_date.asc()
+            ).all()
+
+            nodes = []
+            nodes.append({
+                'label': 'Day 1',
+                'date': case.start_date,
+                'status': 'Start',
+                'summary': case.initial_diagnosis or case.initial_notes
+            })
+
+            for update in updates:
+                day_number = (update.entry_date - case.start_date).days + 1
+                nodes.append({
+                    'label': f'Day {day_number}',
+                    'date': update.entry_date,
+                    'status': update.status or 'Update',
+                    'summary': update.update_summary
+                })
+
+            if case.status == 'closed':
+                closed_date = case.end_date or (updates[-1].entry_date if updates else case.updated_at.date())
+                nodes.append({
+                    'label': 'Done',
+                    'date': closed_date,
+                    'status': 'Closed',
+                    'summary': None
+                })
+
+            case_tree_map[case.id] = nodes
+
+        active_count = PatientCase.query.filter_by(student_id=profile.id, status='active').count()
+        closed_count = PatientCase.query.filter_by(student_id=profile.id, status='closed').count()
+
+        return render_template('clinical/cases_list.html',
+                 profile=profile,
+                 cases=cases,
+                 active_count=active_count,
+                 closed_count=closed_count,
+                 last_update_map=last_update_map,
+                 case_tree_map=case_tree_map)
+
+    @app.route('/clinical/cases/add', methods=['GET', 'POST'])
+    @login_required
+    def clinical_cases_add():
+        """Add a new patient case."""
+        profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        if not profile:
+            flash('Please complete your student profile first.', 'warning')
+            return redirect(url_for('clinical_student_registration'))
+
+        if request.method == 'POST':
+            case_title = request.form.get('case_title')
+            patient_alias = request.form.get('patient_alias')
+            unit = request.form.get('unit')
+            initial_diagnosis = request.form.get('initial_diagnosis')
+            start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
+            initial_notes = request.form.get('initial_notes')
+
+            new_case = PatientCase(
+                student_id=profile.id,
+                case_title=case_title,
+                patient_alias=patient_alias,
+                unit=unit,
+                initial_diagnosis=initial_diagnosis,
+                start_date=start_date,
+                initial_notes=initial_notes,
+                status='active'
+            )
+            db.session.add(new_case)
+            db.session.commit()
+
+            flash('Patient case created successfully.', 'success')
+            return redirect(url_for('clinical_cases'))
+
+        return render_template('clinical/cases_add.html', profile=profile)
+
+    @app.route('/clinical/cases/<int:case_id>')
+    @login_required
+    def clinical_case_detail(case_id):
+        """View patient case details and daily updates."""
+        patient_case = PatientCase.query.get_or_404(case_id)
+        profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+
+        if not profile:
+            flash('Please complete your student profile first.', 'warning')
+            return redirect(url_for('clinical_student_registration'))
+
+        if patient_case.student_id != profile.id and not current_user.can_manage_courses() and not current_user.is_admin():
+            flash('You do not have permission to view this case.', 'danger')
+            return redirect(url_for('clinical_cases'))
+
+        updates = PatientCaseDailyUpdate.query.filter_by(case_id=patient_case.id).order_by(
+            PatientCaseDailyUpdate.entry_date.desc()
+        ).all()
+
+        return render_template('clinical/case_detail.html',
+                             profile=profile,
+                             patient_case=patient_case,
+                             updates=updates)
+
+    @app.route('/clinical/cases/<int:case_id>/update', methods=['POST'])
+    @login_required
+    def clinical_case_update(case_id):
+        """Add a daily update to a patient case."""
+        patient_case = PatientCase.query.get_or_404(case_id)
+        profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+
+        if not profile:
+            flash('Please complete your student profile first.', 'warning')
+            return redirect(url_for('clinical_student_registration'))
+
+        if patient_case.student_id != profile.id:
+            flash('You do not have permission to update this case.', 'danger')
+            return redirect(url_for('clinical_cases'))
+
+        entry_date = datetime.strptime(request.form.get('entry_date'), '%Y-%m-%d').date()
+        status = request.form.get('status')
+        update_summary = request.form.get('update_summary')
+        interventions = request.form.get('interventions')
+        patient_response = request.form.get('patient_response')
+        follow_up_plan = request.form.get('follow_up_plan')
+        next_control_date_raw = request.form.get('next_control_date')
+        next_control_date = None
+        if next_control_date_raw:
+            next_control_date = datetime.strptime(next_control_date_raw, '%Y-%m-%d').date()
+
+        existing_update = PatientCaseDailyUpdate.query.filter_by(
+            case_id=patient_case.id,
+            entry_date=entry_date
+        ).first()
+
+        if existing_update:
+            flash('You already submitted an update for this date.', 'warning')
+            return redirect(url_for('clinical_case_detail', case_id=patient_case.id))
+
+        update = PatientCaseDailyUpdate(
+            case_id=patient_case.id,
+            entry_date=entry_date,
+            status=status,
+            update_summary=update_summary,
+            interventions=interventions,
+            patient_response=patient_response,
+            follow_up_plan=follow_up_plan,
+            next_control_date=next_control_date
+        )
+        db.session.add(update)
+        db.session.commit()
+
+        flash('Daily update added successfully.', 'success')
+        return redirect(url_for('clinical_case_detail', case_id=patient_case.id))
+
+    @app.route('/clinical/cases/<int:case_id>/close', methods=['POST'])
+    @login_required
+    def clinical_case_close(case_id):
+        """Close a patient case when finished."""
+        patient_case = PatientCase.query.get_or_404(case_id)
+        profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+
+        if not profile:
+            flash('Please complete your student profile first.', 'warning')
+            return redirect(url_for('clinical_student_registration'))
+
+        if patient_case.student_id != profile.id:
+            flash('You do not have permission to close this case.', 'danger')
+            return redirect(url_for('clinical_cases'))
+
+        close_date_raw = request.form.get('end_date')
+        close_date = datetime.strptime(close_date_raw, '%Y-%m-%d').date() if close_date_raw else date.today()
+
+        patient_case.status = 'closed'
+        patient_case.end_date = close_date
+        db.session.commit()
+
+        flash('Case closed successfully.', 'success')
+        return redirect(url_for('clinical_case_detail', case_id=patient_case.id))
     
     # ==================== DAILY JOURNAL ====================
     

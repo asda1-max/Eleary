@@ -13,21 +13,6 @@ def init_db(app):
             print("Database already initialized.")
             return
 
-        # Create admin user
-        admin = User(username='admin', email='admin@eleary.com', role='admin', division='Administration')
-        admin.set_password('admin123')
-
-        # Create pemateri (instructor) user
-        pemateri1 = User(username='dr_ahmad', email='ahmad@hospital.com', role='pemateri', division='Medical')
-        pemateri1.set_password('password123')
-
-        # Create regular user
-        user1 = User(username='siti_nurse', email='siti@hospital.com', role='user', division='Medical')
-        user1.set_password('password123')
-
-        db.session.add_all([admin, pemateri1, user1])
-        db.session.commit()
-
         # Create default clinical configuration
         default_config = ClinicalConfig(
             documents_json=json.dumps([
@@ -44,90 +29,49 @@ def init_db(app):
             ]),
             required_course_ids_json=json.dumps([]),
             pretest_questions_json=json.dumps([
-                {'id': 1, 'question': 'What are the 6 patient safety goals?', 'options': ['A', 'B', 'C', 'D']},
-                {'id': 2, 'question': 'What does K3RS stand for?', 'options': ['A', 'B', 'C', 'D']}
+                {
+                    'id': 1,
+                    'question': 'Which action is most important before touching a patient?',
+                    'options': ['Hand hygiene', 'Adjust bed', 'Write notes', 'Check phone'],
+                    'correct_option': 'Hand hygiene'
+                },
+                {
+                    'id': 2,
+                    'question': 'What should you do if your ID badge is missing?',
+                    'options': ['Report to supervisor', 'Borrow a friend’s badge', 'Ignore it', 'Leave the unit'],
+                    'correct_option': 'Report to supervisor'
+                },
+                {
+                    'id': 3,
+                    'question': 'Which item is part of basic PPE?',
+                    'options': ['Gloves', 'Necklace', 'Perfume', 'Watch'],
+                    'correct_option': 'Gloves'
+                }
             ]),
             posttest_questions_json=json.dumps([
-                {'id': 1, 'question': 'How do you report a patient safety incident?', 'options': ['A', 'B', 'C', 'D']},
-                {'id': 2, 'question': 'Which steps are required for infection control?', 'options': ['A', 'B', 'C', 'D']}
+                {
+                    'id': 1,
+                    'question': 'When should you perform hand hygiene?',
+                    'options': ['Before and after patient contact', 'Only after meals', 'Only at shift end', 'Once per day'],
+                    'correct_option': 'Before and after patient contact'
+                },
+                {
+                    'id': 2,
+                    'question': 'Which is the correct way to dispose of sharps?',
+                    'options': ['Place in a sharps container', 'Throw in regular trash', 'Leave on tray', 'Wrap in tissue'],
+                    'correct_option': 'Place in a sharps container'
+                },
+                {
+                    'id': 3,
+                    'question': 'If you witness a safety incident, what is the first step?',
+                    'options': ['Ensure patient safety', 'Post on chat', 'Finish other tasks', 'Ignore it'],
+                    'correct_option': 'Ensure patient safety'
+                }
             ])
         )
         db.session.add(default_config)
         db.session.commit()
 
-        # Create sample courses with instructor_id
-        course1 = Course(
-            title='Pengenalan Sistem Informasi Kesehatan',
-            description='Kursus dasar tentang sistem informasi kesehatan dan penggunaannya di rumah sakit.',
-            instructor_id=pemateri1.id,  # Assign to pemateri
-            category='medical',
-            thumbnail_url='https://via.placeholder.com/300x200?text=SIK'
-        )
-
-        course2 = Course(
-            title='Basic IT Security for Medical Staff',
-            description='Dasar-dasar keamanan IT untuk staf medis.',
-            instructor_id=admin.id,  # Assign to admin
-            category='it',
-            thumbnail_url='https://via.placeholder.com/300x200?text=Security'
-        )
-
-        course3 = Course(
-            title='Hospital Management Best Practices',
-            description='Praktik terbaik dalam manajemen rumah sakit.',
-            instructor_id=pemateri1.id,  # Assign to pemateri
-            category='admin',
-            thumbnail_url='https://via.placeholder.com/300x200?text=Management'
-        )
-
-        db.session.add_all([course1, course2, course3])
-        db.session.commit()
-
-        # Create modules for course1
-        module1 = CourseModule(course_id=course1.id, title='Pengenalan', order_index=1)
-        module2 = CourseModule(course_id=course1.id, title='Modul Dasar', order_index=2)
-        module3 = CourseModule(course_id=course1.id, title='Praktik', order_index=3)
-
-        db.session.add_all([module1, module2, module3])
-        db.session.commit()
-
-        # Create materials for modules
-        material1 = CourseMaterial(
-            module_id=module1.id,
-            title='Apa itu SIK?',
-            description='Video pengenalan tentang sistem informasi kesehatan',
-            file_path='https://www.youtube.com/embed/example',
-            type='video'
-        )
-
-        material2 = CourseMaterial(
-            module_id=module1.id,
-            title='Slide Pengenalan',
-            description='Slide presentasi pengenalan SIK',
-            file_path='/uploads/sik_intro.pdf',
-            type='pdf'
-        )
-
-        material3 = CourseMaterial(
-            module_id=module2.id,
-            title='Dokumentasi',
-            description='Dokumentasi lengkap sistem',
-            file_path='/uploads/sik_documentation.pdf',
-            type='pdf'
-        )
-
-        db.session.add_all([material1, material2, material3])
-        db.session.commit()
-
-        # Create sample library books
-        book1 = LibraryBook(
-            uploader_id=user1.id,
-            title='Medical Best Practices',
-            description='Panduan praktik terbaik dalam pelayanan medis',
-            file_path='/uploads/medical_bp.pdf',
-            status='approved'
-        )
-        
         # ==================== CLINICAL PLATFORM DATA ====================
         
         # Create E-Learning Modules for Pre-Clinical Onboarding
@@ -300,17 +244,4 @@ def init_db(app):
         db.session.add_all(medicine_competencies + nursing_competencies)
         db.session.commit()
         
-        print("✅ Database initialized with sample data including clinical platform features!")
-
-        book2 = LibraryBook(
-            uploader_id=user1.id,
-            title='Nursing Guidelines',
-            description='Pedoman nursing terkini',
-            file_path='/uploads/nursing_guidelines.pdf',
-            status='approved'
-        )
-
-        db.session.add_all([book1, book2])
-        db.session.commit()
-
-        print("Database initialized with sample data!")
+        print("✅ Database initialized with clinical platform defaults.")

@@ -1,10 +1,10 @@
 import os
-from flask import Flask
+from flask import Flask, request, redirect, url_for
 from models import (db, User, Course, CourseModule, CourseMaterial, LibraryBook, AttendanceLog, CourseEnrollment, News,
                     StudentProfile, LegalDocument, DigitalAgreement, ElearningModule, ElearningProgress, ClinicalConfig,
-                    PreClinicalAssessment, LogbookEntry, CompetencyChecklist, CompetencyProgress, DailyJournal,
-                    WeeklyAssessment, FinalExam, Evaluation360, ClinicalCertificate, IncidentReport,
-                    StudentFeedback, AlumniProfile, SupervisorValidationPIN)
+                    PreClinicalAssessment, LogbookEntry, PatientCase, PatientCaseDailyUpdate,
+                    CompetencyChecklist, CompetencyProgress, DailyJournal, WeeklyAssessment, FinalExam, Evaluation360,
+                    ClinicalCertificate, IncidentReport, StudentFeedback, AlumniProfile, SupervisorValidationPIN)
 from app.extensions import login_manager
 from app.routes.auth import register_auth_routes
 from app.routes.courses import register_course_routes
@@ -30,6 +30,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(base_dir, 'uploads')
     app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
+    app.config['APP_SETUP_PASSWORD'] = os.getenv('APP_SETUP_PASSWORD', 'diponegoro')
 
     # Ensure upload folder exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -52,6 +53,13 @@ def create_app():
     register_error_handlers(app)
     register_upload_routes(app)
     register_clinical_routes(app)
+
+    @app.before_request
+    def ensure_first_admin():
+        if request.endpoint in {None, 'static', 'setup_admin'}:
+            return
+        if User.query.filter_by(role='admin').first() is None:
+            return redirect(url_for('setup_admin'))
 
     # Shell context
     @app.shell_context_processor

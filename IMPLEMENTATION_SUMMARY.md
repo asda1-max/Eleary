@@ -34,7 +34,7 @@
 - ✅ **base.html** - Master template with navigation, footer, dark mode toggle
 
 #### Authentication (2 files)
-- ✅ **login.html** - Login page with demo credentials
+- ✅ **login.html** - Login page
 - ✅ **register.html** - Registration page with Mahasiswa/Koas division selection
 
 #### User Pages (5 files)
@@ -71,7 +71,7 @@
 - [x] Session management (Flask-Login)
 - [x] Admin, Pemateri, and User role-based access
 - [x] Protected routes with decorators
-- [x] Demo credentials included
+- [x] First-admin setup flow
 
 ### ✅ Instructor Approval Workflow (NEW)
 - [x] Users can request Pemateri (instructor) role during registration
@@ -541,9 +541,8 @@ The project includes:
 - **Architecture**: See PROJECT_STRUCTURE.md
 - **Routes**: See app.py comments
 
-### Sample Credentials
-- **Admin**: admin / admin123
-- **User**: dr_ahmad / password123
+### First Admin Setup
+- Create the initial admin at `/setup-admin`
 
 ### Default Data
 - 3 sample users
@@ -589,7 +588,7 @@ All requirements have been implemented:
 
 1. **Test the Application**
    - Run the app
-   - Test login with sample credentials
+   - Test login with the newly created admin
    - Create a test course
    - Upload a test document
 
